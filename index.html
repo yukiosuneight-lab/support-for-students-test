@@ -1,0 +1,1461 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>武田塾 部活生応援 LP Draft</title>
+    <meta
+      name="description"
+      content="部活をやり切った高校生を応援する武田塾のローカル再現サイト叩き台。"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23d80b25'/%3E%3Cpath d='M15 17h34v7H36v23h-8V24H15z' fill='white'/%3E%3Cpath d='M45 35l6 6-6 6-6-6z' fill='%23081735'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        --red: #d70a24;
+        --red-deep: #b7071d;
+        --navy: #061633;
+        --ink: #111827;
+        --muted: #5f6b7a;
+        --line: #cfe0ef;
+        --blue: #78baf2;
+        --blue-soft: #e9f7ff;
+        --paper: #fffdfa;
+        --shadow: 0 24px 60px rgba(6, 22, 51, 0.14);
+        --serif: "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Noto Serif JP", serif;
+        --sans: "Yu Gothic", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--navy);
+        background: #ffffff;
+        font-family: var(--sans);
+        line-height: 1.8;
+      }
+
+      img {
+        max-width: 100%;
+        display: block;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .site-header {
+        position: fixed;
+        z-index: 30;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 70px;
+        padding: 12px clamp(18px, 4vw, 58px);
+        background: rgba(255, 255, 255, 0.86);
+        border-bottom: 1px solid rgba(207, 224, 239, 0.72);
+        backdrop-filter: blur(14px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .brand img {
+        width: 120px;
+        height: auto;
+      }
+
+      .brand span {
+        display: inline-block;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.3;
+        white-space: nowrap;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        color: #24324b;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .nav a {
+        transition: color 180ms ease;
+      }
+
+      .nav a:hover {
+        color: var(--red);
+      }
+
+      .nav .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 20px;
+        color: #fff;
+        background: var(--red);
+        border-radius: 999px;
+        box-shadow: 0 10px 20px rgba(215, 10, 36, 0.22);
+      }
+
+      .hero {
+        position: relative;
+        min-height: 760px;
+        overflow: hidden;
+        display: grid;
+        align-items: center;
+        padding: 126px clamp(24px, 6vw, 76px) 64px;
+        background: #dbeefa;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: url("assets/screen-01.png") center top / cover no-repeat;
+        transform: scale(1.01);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 42%;
+        background: linear-gradient(0deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0));
+      }
+
+      .hero-copy {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(46px, 7vw, 86px);
+        font-weight: 900;
+        letter-spacing: 0;
+        line-height: 1.18;
+      }
+
+      .hero h1 .red {
+        color: var(--red);
+        font-size: 1.12em;
+      }
+
+      .hero-lead {
+        margin: 34px 0 0;
+        color: #2f3745;
+        font-size: clamp(19px, 2.4vw, 28px);
+        font-weight: 700;
+        line-height: 1.85;
+      }
+
+      .hand-note {
+        position: relative;
+        display: inline-block;
+        margin-top: 76px;
+        color: #172033;
+        font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+        font-size: clamp(19px, 2.2vw, 28px);
+        line-height: 1.42;
+        transform: rotate(-8deg);
+      }
+
+      .hand-note::after {
+        content: "";
+        position: absolute;
+        left: 2px;
+        right: -8px;
+        bottom: 4px;
+        height: 2px;
+        background: currentColor;
+        transform: rotate(-6deg);
+      }
+
+      .section {
+        padding: clamp(64px, 9vw, 110px) clamp(18px, 5vw, 64px);
+      }
+
+      #support,
+      #method,
+      #diagnosis,
+      #cta {
+        scroll-margin-top: 88px;
+      }
+
+      .section-tight {
+        padding-top: clamp(38px, 6vw, 68px);
+      }
+
+      .wrap {
+        width: min(1120px, 100%);
+        margin: 0 auto;
+      }
+
+      .message-panel {
+        padding: clamp(24px, 4vw, 48px);
+        border-radius: 30px;
+        background: linear-gradient(135deg, #e9f8ff 0%, #f8fcff 54%, #e8f8ff 100%);
+      }
+
+      .photo-frame {
+        aspect-ratio: 884 / 410;
+        min-height: 0;
+        border-radius: 18px;
+        background: #dbeefa center / cover no-repeat;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+      }
+
+      .message-photo {
+        background-image: url("assets/screen-01.png");
+        background-position: center 75%;
+      }
+
+      .label {
+        display: table;
+        margin: 34px auto 16px;
+        padding: 7px 34px;
+        color: #fff;
+        background: var(--red);
+        border-radius: 999px;
+        font-weight: 900;
+        letter-spacing: 0;
+      }
+
+      .headline {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(36px, 5.2vw, 66px);
+        font-weight: 900;
+        line-height: 1.35;
+        text-align: center;
+        letter-spacing: 0;
+      }
+
+      .headline .red {
+        color: var(--red);
+      }
+
+      .subcopy {
+        margin: 18px auto 0;
+        max-width: 900px;
+        color: #15223c;
+        font-size: clamp(17px, 2.1vw, 25px);
+        font-weight: 700;
+        line-height: 1.8;
+        text-align: center;
+      }
+
+      .wide-visual {
+        min-height: 350px;
+        background: center / cover no-repeat;
+      }
+
+      .support-visual {
+        background-image: url("assets/screen-02.png");
+        background-position: center top;
+        background-size: 100% auto;
+        aspect-ratio: 1024 / 350;
+        min-height: 0;
+      }
+
+      .support-copy {
+        padding: 34px 18px 28px;
+        text-align: center;
+      }
+
+      .support-copy p {
+        margin: 14px auto 0;
+        max-width: 820px;
+        color: #1c263a;
+        font-size: clamp(17px, 2vw, 23px);
+        font-weight: 600;
+      }
+
+      .sport-strip {
+        aspect-ratio: 1024 / 204;
+        min-height: 0;
+        background-image: url("assets/screen-02.png");
+        background-size: 100% auto;
+        background-position: center 49%;
+        border-top: 1px solid rgba(255, 255, 255, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .support-title-row {
+        position: relative;
+        padding: 38px 18px 24px;
+        text-align: center;
+      }
+
+      .support-title-row .scribble {
+        position: absolute;
+        right: min(8vw, 70px);
+        bottom: 18px;
+        color: var(--red);
+        font-family: var(--serif);
+        font-size: clamp(17px, 2.1vw, 27px);
+        font-weight: 900;
+        transform: rotate(-9deg);
+      }
+
+      .season-list {
+        display: grid;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .season-card {
+        display: grid;
+        grid-template-columns: 136px 1fr;
+        gap: 22px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .season-card.blue {
+        background: linear-gradient(135deg, #eefaff, #e3f6ff);
+      }
+
+      .season-badge {
+        display: grid;
+        place-items: center;
+        align-self: start;
+        min-height: 64px;
+        color: var(--red);
+        background: #ffe1e8;
+        border-radius: 15px;
+        font-family: var(--serif);
+        font-size: 32px;
+        font-weight: 900;
+      }
+
+      .season-card.blue .season-badge {
+        color: #0d85dd;
+        background: #cdeeff;
+      }
+
+      .event-list {
+        display: grid;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .event-list li {
+        display: grid;
+        grid-template-columns: 54px 1fr;
+        align-items: center;
+        min-height: 52px;
+        border-bottom: 1px solid #d8e5ef;
+        color: #13203c;
+        font-size: clamp(15px, 1.65vw, 21px);
+        font-weight: 700;
+      }
+
+      .event-list li:last-child {
+        border-bottom: 0;
+      }
+
+      .sport-mark {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        color: #fff;
+        background: var(--navy);
+        border-radius: 50%;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      .method {
+        background: linear-gradient(180deg, #fff 0%, #fff 47%, #eaf8ff 47%, #eaf8ff 100%);
+      }
+
+      .method-intro {
+        text-align: center;
+      }
+
+      .method-intro p {
+        margin: 8px auto 0;
+        max-width: 930px;
+        font-size: clamp(17px, 2vw, 24px);
+        font-weight: 600;
+      }
+
+      .cycle {
+        position: relative;
+        min-height: 560px;
+        margin: 34px auto 62px;
+      }
+
+      .cycle-center {
+        position: absolute;
+        z-index: 2;
+        left: 50%;
+        top: 50%;
+        width: 300px;
+        transform: translate(-50%, -45%);
+        text-align: center;
+      }
+
+      .cycle-center h3 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(32px, 4vw, 48px);
+        font-weight: 900;
+        line-height: 1.35;
+      }
+
+      .cycle-center::after {
+        content: "";
+        display: block;
+        width: 58px;
+        height: 3px;
+        margin: 20px auto 0;
+        background: #95c8ef;
+      }
+
+      .cycle-node {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        width: 218px;
+        height: 218px;
+        padding: 28px;
+        text-align: center;
+        background: radial-gradient(circle at 50% 42%, #f7fdff 0%, #e8f7ff 66%, #dcf0fc 100%);
+        border-radius: 50%;
+      }
+
+      .cycle-node strong {
+        display: block;
+        margin-top: 4px;
+        font-family: var(--serif);
+        font-size: 25px;
+        line-height: 1.35;
+      }
+
+      .cycle-node span {
+        display: block;
+        margin-top: 7px;
+        color: #15233a;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.55;
+      }
+
+      .cycle-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto;
+        color: var(--navy);
+      }
+
+      .node-1 {
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+      }
+
+      .node-2 {
+        right: 10%;
+        top: 174px;
+      }
+
+      .node-3 {
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+      }
+
+      .node-4 {
+        left: 10%;
+        top: 174px;
+      }
+
+      .cycle-ring {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 560px;
+        height: 410px;
+        transform: translate(-50%, -47%);
+        border: 8px solid rgba(140, 196, 236, 0.72);
+        border-left-color: transparent;
+        border-radius: 50%;
+        opacity: 0.8;
+      }
+
+      .stats-band {
+        padding: clamp(56px, 7vw, 82px) 0 0;
+        text-align: center;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-top: 28px;
+      }
+
+      .metric {
+        min-height: 176px;
+        padding: 24px 16px;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 18px 40px rgba(17, 43, 81, 0.08);
+      }
+
+      .metric h3 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: 24px;
+      }
+
+      .metric h3::after {
+        content: "";
+        display: block;
+        width: 42px;
+        height: 2px;
+        margin: 12px auto 8px;
+        background: #a9d1ee;
+      }
+
+      .metric strong {
+        display: block;
+        color: var(--red);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(48px, 7vw, 78px);
+        line-height: 1.05;
+      }
+
+      .metric strong.navy {
+        color: var(--navy);
+        font-family: var(--serif);
+      }
+
+      .chart-card {
+        margin-top: 24px;
+        padding: clamp(24px, 4vw, 42px);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 18px 45px rgba(17, 43, 81, 0.1);
+        text-align: left;
+      }
+
+      .chart-card h3 {
+        margin: 0;
+        font-size: clamp(20px, 2.2vw, 28px);
+      }
+
+      .chart-area {
+        display: grid;
+        grid-template-columns: 1fr 190px;
+        gap: 24px;
+        align-items: center;
+        min-height: 300px;
+      }
+
+      .bar-chart {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: end;
+        gap: clamp(44px, 7vw, 100px);
+        min-height: 260px;
+        padding: 40px 34px 44px 88px;
+        border-left: 1px solid #8ba5bf;
+        border-bottom: 1px solid #8ba5bf;
+      }
+
+      .bar-chart::before {
+        content: "80\A60\A40\A20\A0";
+        white-space: pre;
+        position: absolute;
+        left: 18px;
+        top: 30px;
+        color: #536178;
+        font-size: 16px;
+        line-height: 2.42;
+      }
+
+      .bar {
+        position: relative;
+        display: flex;
+        align-items: end;
+        justify-content: center;
+        min-height: 190px;
+      }
+
+      .bar::before {
+        content: "";
+        width: min(128px, 70%);
+        height: var(--h);
+        border-radius: 2px 2px 0 0;
+        background: linear-gradient(180deg, var(--c1), var(--c2));
+      }
+
+      .bar strong {
+        position: absolute;
+        bottom: calc(var(--h) + 8px);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 40px;
+      }
+
+      .bar span {
+        position: absolute;
+        bottom: -42px;
+        left: 50%;
+        width: 190px;
+        transform: translateX(-50%);
+        text-align: center;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .chart-note {
+        color: var(--navy);
+        font-family: var(--serif);
+        font-size: 24px;
+        font-weight: 900;
+        line-height: 1.65;
+        transform: rotate(-8deg);
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 28px;
+      }
+
+      .tag {
+        min-width: 144px;
+        padding: 8px 20px;
+        color: #14213b;
+        background: #e8f6ff;
+        border-radius: 999px;
+        text-align: center;
+        font-weight: 900;
+      }
+
+      .diagnosis {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+        gap: clamp(34px, 7vw, 90px);
+        align-items: center;
+      }
+
+      .diagnosis-copy {
+        min-height: 560px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.92) 62%),
+          url("assets/screen-04.png") left top / cover no-repeat;
+        border-radius: 0 0 0 34px;
+      }
+
+      .diagnosis-copy .label {
+        margin: 0 0 22px;
+      }
+
+      .diagnosis-copy h2 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(46px, 6.4vw, 78px);
+        font-weight: 900;
+        line-height: 1.22;
+      }
+
+      .diagnosis-copy p {
+        margin: 28px 0 0;
+        max-width: 460px;
+        color: #1e283a;
+        font-size: clamp(17px, 2vw, 24px);
+        font-weight: 700;
+      }
+
+      .quiz {
+        min-height: 540px;
+        padding: clamp(28px, 5vw, 46px);
+        border: 1px solid #b8d8f3;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: var(--shadow);
+      }
+
+      .quiz-top {
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+      }
+
+      .quiz-count {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .progress {
+        width: 100%;
+        height: 18px;
+        overflow: hidden;
+        background: #e7eff6;
+        border-radius: 999px;
+      }
+
+      .progress span {
+        display: block;
+        width: 20%;
+        height: 100%;
+        background: linear-gradient(90deg, #61aef0, #8ed0ff);
+        border-radius: inherit;
+        transition: width 240ms ease;
+      }
+
+      .quiz h3 {
+        margin: 42px 0 22px;
+        font-family: var(--serif);
+        font-size: clamp(24px, 3vw, 36px);
+        line-height: 1.45;
+      }
+
+      .answers {
+        display: grid;
+        gap: 14px;
+      }
+
+      .answer {
+        min-height: 74px;
+        padding: 14px 18px;
+        color: var(--ink);
+        background: #fff;
+        border: 2px solid #70b9ff;
+        border-radius: 12px;
+        font-size: clamp(16px, 2vw, 22px);
+        font-weight: 900;
+        cursor: pointer;
+        transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+      }
+
+      .answer:hover,
+      .answer:focus-visible {
+        color: #fff;
+        background: var(--red);
+        border-color: var(--red);
+        transform: translateY(-2px);
+        outline: 0;
+      }
+
+      .quiz-note {
+        margin: 20px 0 0;
+        color: #3f4b5d;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .result {
+        display: none;
+        margin-top: 24px;
+        padding: 24px;
+        border-radius: 14px;
+        background: #eef8ff;
+      }
+
+      .result.is-active {
+        display: block;
+      }
+
+      .result strong {
+        display: block;
+        color: var(--red);
+        font-family: var(--serif);
+        font-size: 28px;
+      }
+
+      .result p {
+        margin: 10px 0 18px;
+        color: #1a263b;
+        font-weight: 700;
+      }
+
+      .reset {
+        min-height: 46px;
+        padding: 0 22px;
+        color: #fff;
+        background: var(--navy);
+        border: 0;
+        border-radius: 999px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .closing-photo {
+        min-height: 450px;
+        background-image: url("assets/screen-04.png");
+        background-position: center 64%;
+      }
+
+      .cta {
+        padding: clamp(50px, 6vw, 72px) 18px 56px;
+        text-align: center;
+      }
+
+      .cta h2 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(42px, 6vw, 72px);
+        line-height: 1.25;
+      }
+
+      .cta p {
+        margin: 18px auto 0;
+        max-width: 900px;
+        color: #111827;
+        font-size: clamp(17px, 2vw, 23px);
+        font-weight: 700;
+      }
+
+      .primary-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: min(520px, 92vw);
+        min-height: 86px;
+        margin-top: 28px;
+        padding: 0 44px;
+        color: #fff;
+        background: linear-gradient(180deg, #e01531, #c90520);
+        border-radius: 999px;
+        box-shadow: 0 16px 32px rgba(215, 10, 36, 0.26);
+        font-family: var(--serif);
+        font-size: clamp(25px, 3.8vw, 40px);
+        font-weight: 900;
+      }
+
+      .footer {
+        padding: 28px 18px 40px;
+        border-top: 1px solid #d9e2ea;
+        text-align: center;
+      }
+
+      .footer img {
+        width: 116px;
+        margin: 0 auto 10px;
+      }
+
+      .footer p {
+        margin: 0;
+        color: #27344a;
+        font-family: var(--serif);
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      @media (max-width: 900px) {
+        .site-header {
+          min-height: 62px;
+        }
+
+        .brand span,
+        .nav a:not(.nav-cta) {
+          display: none;
+        }
+
+        .hero {
+          min-height: 680px;
+          padding-top: 104px;
+        }
+
+        .hero::before {
+          background: url("assets/screen-01.png") 58% top / cover no-repeat;
+        }
+
+        .wide-visual,
+        .closing-photo {
+          min-height: 300px;
+        }
+
+        .photo-frame {
+          min-height: 0;
+        }
+
+        .support-visual,
+        .sport-strip {
+          min-height: 0;
+        }
+
+        .season-card,
+        .diagnosis {
+          grid-template-columns: 1fr;
+        }
+
+        .support-title-row .scribble {
+          position: static;
+          display: block;
+          margin-top: 12px;
+        }
+
+        .cycle {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          min-height: auto;
+          margin-bottom: 42px;
+        }
+
+        .cycle-ring {
+          display: none;
+        }
+
+        .cycle-center {
+          position: static;
+          grid-column: 1 / -1;
+          width: auto;
+          transform: none;
+          order: -1;
+          margin-bottom: 8px;
+        }
+
+        .cycle-node {
+          position: static;
+          width: auto;
+          height: auto;
+          min-height: 190px;
+          transform: none;
+          border-radius: 28px;
+        }
+
+        .metric-grid,
+        .chart-area {
+          grid-template-columns: 1fr;
+        }
+
+        .chart-note {
+          text-align: center;
+          transform: rotate(-4deg);
+        }
+
+        .diagnosis-copy {
+          min-height: 420px;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .site-header {
+          padding-inline: 14px;
+        }
+
+        .brand img {
+          width: 96px;
+        }
+
+        .nav .nav-cta {
+          min-height: 38px;
+          padding-inline: 14px;
+          font-size: 13px;
+        }
+
+        .hero {
+          min-height: 630px;
+          padding-inline: 18px;
+        }
+
+        .hero h1 {
+          font-size: clamp(40px, 12vw, 58px);
+        }
+
+        .hero-lead {
+          font-size: 18px;
+        }
+
+        .hand-note {
+          margin-top: 42px;
+        }
+
+        .section {
+          padding-inline: 14px;
+        }
+
+        .message-panel {
+          border-radius: 22px;
+          padding: 16px;
+        }
+
+        .photo-frame {
+          min-height: 0;
+          border-radius: 14px;
+        }
+
+        .sport-strip {
+          min-height: 0;
+        }
+
+        .season-card {
+          padding: 16px;
+        }
+
+        .season-badge {
+          min-height: 54px;
+          font-size: 26px;
+        }
+
+        .event-list li {
+          grid-template-columns: 42px 1fr;
+          min-height: 48px;
+        }
+
+        .cycle {
+          grid-template-columns: 1fr;
+        }
+
+        .metric-grid {
+          gap: 12px;
+        }
+
+        .chart-card {
+          padding: 20px 14px 28px;
+        }
+
+        .bar-chart {
+          gap: 22px;
+          padding-left: 52px;
+          padding-right: 12px;
+        }
+
+        .bar-chart::before {
+          left: 4px;
+          font-size: 14px;
+        }
+
+        .bar span {
+          width: 132px;
+          font-size: 15px;
+        }
+
+        .tag {
+          min-width: 132px;
+        }
+
+        .diagnosis-copy {
+          min-height: 360px;
+          border-radius: 0 0 22px 22px;
+        }
+
+        .quiz {
+          min-height: auto;
+          padding: 20px;
+        }
+
+        .answer {
+          min-height: 64px;
+        }
+
+        .closing-photo {
+          min-height: 310px;
+        }
+
+        .primary-cta {
+          min-height: 72px;
+          padding-inline: 28px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header" aria-label="サイト内ナビゲーション">
+      <a class="brand" href="#top" aria-label="武田塾 トップへ">
+        <img src="assets/main_logo.webp" alt="武田塾" />
+        <span>部活生応援キャンペーン</span>
+      </a>
+      <nav class="nav" aria-label="主要メニュー">
+        <a href="#support">応援</a>
+        <a href="#method">逆転</a>
+        <a href="#diagnosis">診断</a>
+        <a class="nav-cta" href="#cta">無料相談</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-label="努力は量じゃない、やり方だ">
+        <div class="hero-copy">
+          <h1>努力は量じゃない、<br /><span class="red">“やり方”</span>だ。</h1>
+          <p class="hero-lead">
+            部活も、受験も。<br />
+            これまでの頑張りは、<br />
+            正しいやり方で報われる。
+          </p>
+          <p class="hand-note">引退、おつかれさま。<br />次は、受験だ。</p>
+        </div>
+      </section>
+
+      <section class="section section-tight" aria-labelledby="message-title">
+        <div class="wrap">
+          <div class="message-panel">
+            <div class="photo-frame message-photo" role="img" aria-label="夕暮れのグラウンドで笑う高校生たち"></div>
+            <span class="label">武田塾からのメッセージ</span>
+            <h2 id="message-title" class="headline">
+              部活をやり切った学生を、<br />
+              武田塾は<span class="red">全力で応援します！</span>
+            </h2>
+            <p class="subcopy">最後の試合まで、全力で。そのあとの受験も、全力で支えます。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="support" aria-labelledby="support-title">
+        <div class="wide-visual support-visual" role="img" aria-label="スタジアムで笑顔の高校生"></div>
+        <div class="support-copy">
+          <span class="label">武田塾の応援</span>
+          <h2 id="support-title" class="headline">部活も、受験も欲張れ!!</h2>
+          <p>
+            どっちかを選ぶ必要なんて、ない。部活を最後までやりきっても、
+            “やり方”さえ変えれば、引退してからでも逆転できる。
+          </p>
+        </div>
+        <div class="sport-strip" role="img" aria-label="さまざまな部活動に励む高校生"></div>
+
+        <div class="wrap">
+          <div class="support-title-row">
+            <h2 class="headline">頑張る高校生を、応援します。</h2>
+            <p class="subcopy">勉強だけではありません。全国の、頑張る場所に。</p>
+            <span class="scribble">全員、応援してる。</span>
+          </div>
+
+          <div class="season-list">
+            <article class="season-card">
+              <div class="season-badge">春</div>
+              <ul class="event-list">
+                <li><span class="sport-mark">野</span>選抜高等学校野球大会（阪神甲子園球場 壁面広告）</li>
+                <li><span class="sport-mark">踊</span>日本高校ダンス部選手権 DANCE STADIUM（春・新人戦）</li>
+                <li><span class="sport-mark">排</span>全国私立高等学校男女バレーボール選手権大会</li>
+                <li><span class="sport-mark">送</span>全国高等学校ハンドボール選抜大会</li>
+                <li><span class="sport-mark">拳</span>全国高等学校ボクシング選抜大会</li>
+                <li><span class="sport-mark">柔</span>風間杯争奪全国高等学校選抜レスリング大会</li>
+                <li><span class="sport-mark">球</span>全国高等学校男子・女子ソフトボール選抜大会</li>
+                <li><span class="sport-mark">蹴</span>高校女子サッカー大会</li>
+              </ul>
+            </article>
+
+            <article class="season-card blue">
+              <div class="season-badge">夏</div>
+              <ul class="event-list">
+                <li><span class="sport-mark">野</span>全国高等学校野球選手権大会（阪神甲子園球場 壁面広告）</li>
+                <li><span class="sport-mark">総</span>全国高等学校総合体育大会（インターハイ）</li>
+                <li><span class="sport-mark">踊</span>日本高校ダンス部選手権 DANCE STADIUM（夏・全国大会）</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="method" class="section method" aria-labelledby="method-title">
+        <div class="wrap">
+          <div class="method-intro">
+            <h2 id="method-title" class="headline">なぜ、武田塾なら“逆転”できるのか。</h2>
+            <p>答えは、授業をしないこと。足りないのは授業ではなく“正しいやり方”だから。</p>
+          </div>
+
+          <div class="cycle" aria-label="正しいやり方の4ステップ">
+            <div class="cycle-ring" aria-hidden="true"></div>
+            <div class="cycle-center">
+              <h3>正しいやり方で、<br />合格は近づく。</h3>
+            </div>
+
+            <article class="cycle-node node-1">
+              <div>
+                <svg class="cycle-icon" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M12 6h19l5 5v29H12z" fill="none" stroke="currentColor" stroke-width="3" />
+                  <path d="M31 6v7h7M18 20h14M18 28h10" fill="none" stroke="currentColor" stroke-width="3" />
+                </svg>
+                <strong>1 診断・逆算</strong>
+                <span>やることを1冊単位で決める</span>
+              </div>
+            </article>
+
+            <article class="cycle-node node-2">
+              <div>
+                <svg class="cycle-icon" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M9 13c7-4 14-4 22 0v27c-8-4-15-4-22 0zM31 13c4-2 7-2 10 0v27c-3-2-6-2-10 0" fill="none" stroke="currentColor" stroke-width="3" />
+                </svg>
+                <strong>2 実行</strong>
+                <span>毎日やることが明確、1冊を完璧に</span>
+              </div>
+            </article>
+
+            <article class="cycle-node node-3">
+              <div>
+                <svg class="cycle-icon" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M16 10h16v6H16zM12 16h24v26H12z" fill="none" stroke="currentColor" stroke-width="3" />
+                  <path d="M18 29l4 4 8-10" fill="none" stroke="currentColor" stroke-width="3" />
+                </svg>
+                <strong>3 確認テスト</strong>
+                <span>できたか毎日チェックしてごまかせない</span>
+              </div>
+            </article>
+
+            <article class="cycle-node node-4">
+              <div>
+                <svg class="cycle-icon" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M8 38h32M13 32v6M22 24v14M31 16v22M40 8v30" fill="none" stroke="currentColor" stroke-width="3" />
+                  <path d="M8 30c9-2 20-8 30-22" fill="none" stroke="currentColor" stroke-width="3" />
+                </svg>
+                <strong>4 定着→次の1冊</strong>
+                <span>積み上げを次の参考書へつなげる</span>
+              </div>
+            </article>
+          </div>
+
+          <div class="stats-band">
+            <h2 class="headline">E判定から、逆転する。</h2>
+            <p class="subcopy">引退してから始めても、間に合う。“やり方”を変えた先輩たちの結果です。</p>
+
+            <div class="metric-grid">
+              <article class="metric">
+                <h3>偏差値 平均</h3>
+                <strong>+14.2</strong>
+              </article>
+              <article class="metric">
+                <h3>E判定からの逆転合格</h3>
+                <strong class="navy">多数</strong>
+              </article>
+              <article class="metric">
+                <h3>合格者</h3>
+                <strong>2,480名</strong>
+              </article>
+            </div>
+
+            <div class="chart-card">
+              <h3>偏差値の推移（平均）</h3>
+              <div class="chart-area">
+                <div class="bar-chart" aria-label="引退後に入塾は41、受験本番は63">
+                  <div class="bar" style="--h: 42%; --c1: #9bcaf0; --c2: #77b4e5">
+                    <strong>41</strong>
+                    <span>引退後に入塾</span>
+                  </div>
+                  <div class="bar" style="--h: 66%; --c1: #df344c; --c2: #ca0c28">
+                    <strong>63</strong>
+                    <span>受験本番</span>
+                  </div>
+                </div>
+                <p class="chart-note">引退してからでも、<br />ここまで伸びる。</p>
+              </div>
+              <div class="tag-row" aria-label="主な合格先">
+                <span class="tag">国公立</span>
+                <span class="tag">早慶上理</span>
+                <span class="tag">MARCH</span>
+                <span class="tag">関関同立</span>
+                <span class="tag">その他 多数</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="diagnosis" class="section" aria-labelledby="diagnosis-title">
+        <div class="wrap diagnosis">
+          <div class="diagnosis-copy">
+            <span class="label">無料 やり方診断</span>
+            <h2 id="diagnosis-title">3分で、<br />勉強の“やり方”<br />を診断する。</h2>
+            <p>まずは、自分のやり方を確かめてください。</p>
+          </div>
+
+          <div class="quiz" aria-live="polite">
+            <div class="quiz-top">
+              <span class="quiz-count" id="quiz-count">Q1 / 5</span>
+              <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+            </div>
+            <h3 id="quiz-question">勉強していて、いちばん近いのは？</h3>
+            <div class="answers" id="answers"></div>
+            <p class="quiz-note">登録不要・メールアドレス不要。結果はその場で表示。</p>
+            <div class="result" id="result">
+              <strong id="result-title"></strong>
+              <p id="result-text"></p>
+              <button class="reset" type="button" id="reset-quiz">もう一度診断する</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="wide-visual closing-photo" role="img" aria-label="夕暮れの校門で前を向く高校生"></div>
+
+      <section id="cta" class="cta" aria-labelledby="cta-title">
+        <span class="label">無料 受験相談・体験</span>
+        <h2 id="cta-title">次の試合は、受験だ。</h2>
+        <p>
+          授業はしない。参考書を1冊ずつ完璧に。だから、引退してからでも間に合う。
+          無料の受験相談で、志望校までの“やり方”をひとつ持ち帰れます。入塾は、それから。
+        </p>
+        <a class="primary-cta" href="#diagnosis">無料で体験する</a>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <img src="assets/main_logo.webp" alt="武田塾" />
+      <p>武田塾 ー 頑張り方を、教える人でありたい。</p>
+    </footer>
+
+    <script>
+      const quizSteps = [
+        {
+          question: "勉強していて、いちばん近いのは？",
+          answers: [
+            ["何から手をつければいいか分からない", 1],
+            ["やることは分かるが、続かない", 2],
+            ["やっているのに、伸びない", 3],
+            ["部活が忙しくて、勉強時間がない", 1],
+          ],
+        },
+        {
+          question: "参考書はどう進めていますか？",
+          answers: [
+            ["買ったまま止まっているものがある", 1],
+            ["一周したけれど定着しているか不安", 3],
+            ["何冊も同時に進めている", 2],
+            ["毎日チェックできている", 4],
+          ],
+        },
+        {
+          question: "今いちばん欲しいものは？",
+          answers: [
+            ["志望校までの具体的な計画", 1],
+            ["毎日続ける仕組み", 2],
+            ["本当に覚えたか確認する方法", 3],
+            ["部活後でも回る勉強ルート", 1],
+          ],
+        },
+        {
+          question: "模試や定期テストの後は？",
+          answers: [
+            ["結果を見て終わりがち", 1],
+            ["解き直しするが次につながらない", 2],
+            ["弱点を参考書まで戻して直す", 4],
+            ["復習の優先順位が決められない", 1],
+          ],
+        },
+        {
+          question: "受験に向けて、今の気持ちは？",
+          answers: [
+            ["引退後からでも間に合わせたい", 1],
+            ["今の努力を点数につなげたい", 3],
+            ["自分に合うやり方を決めたい", 2],
+            ["毎日の勉強を管理してほしい", 2],
+          ],
+        },
+      ];
+
+      const countEl = document.getElementById("quiz-count");
+      const progressEl = document.getElementById("progress-bar");
+      const questionEl = document.getElementById("quiz-question");
+      const answersEl = document.getElementById("answers");
+      const resultEl = document.getElementById("result");
+      const resultTitleEl = document.getElementById("result-title");
+      const resultTextEl = document.getElementById("result-text");
+      const resetEl = document.getElementById("reset-quiz");
+
+      let currentStep = 0;
+      let score = 0;
+
+      function renderQuiz() {
+        const step = quizSteps[currentStep];
+        countEl.textContent = `Q${currentStep + 1} / ${quizSteps.length}`;
+        progressEl.style.width = `${((currentStep + 1) / quizSteps.length) * 100}%`;
+        questionEl.textContent = step.question;
+        answersEl.innerHTML = "";
+        resultEl.classList.remove("is-active");
+
+        step.answers.forEach(([label, value]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "answer";
+          button.textContent = label;
+          button.addEventListener("click", () => selectAnswer(value));
+          answersEl.appendChild(button);
+        });
+      }
+
+      function selectAnswer(value) {
+        score += value;
+        currentStep += 1;
+
+        if (currentStep >= quizSteps.length) {
+          showResult();
+          return;
+        }
+
+        renderQuiz();
+      }
+
+      function showResult() {
+        countEl.textContent = "診断結果";
+        progressEl.style.width = "100%";
+        questionEl.textContent = "あなたに近い“やり方”";
+        answersEl.innerHTML = "";
+
+        if (score <= 8) {
+          resultTitleEl.textContent = "まずは逆算ルート型";
+          resultTextEl.textContent =
+            "志望校から逆算して、今日やる1冊を決めるところから始めると前に進みやすい状態です。";
+        } else if (score <= 14) {
+          resultTitleEl.textContent = "継続チェック強化型";
+          resultTextEl.textContent =
+            "やることは見えています。毎日の確認テストと進捗管理で、努力を点数につなげましょう。";
+        } else {
+          resultTitleEl.textContent = "完成度アップ型";
+          resultTextEl.textContent =
+            "すでに動けています。参考書の完成度を高め、弱点を1冊ずつつぶすと逆転の精度が上がります。";
+        }
+
+        resultEl.classList.add("is-active");
+      }
+
+      resetEl.addEventListener("click", () => {
+        currentStep = 0;
+        score = 0;
+        renderQuiz();
+      });
+
+      renderQuiz();
+    </script>
+  </body>
+</html>
