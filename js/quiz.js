@@ -78,7 +78,7 @@
     }
   };
 
-  var CTA_HREF = "#cta"; // 結果画面の「無料受験相談」ボタンのリンク先
+  var CTA_HREF = "#consult"; // 結果画面の「無料受験相談」ボタンのリンク先
 
   var root = document.querySelector("[data-quiz]");
   if (!root) return;
@@ -90,6 +90,8 @@
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var answers = [];
+  var room = root.closest(".room");
+  function setResultMode(on) { if (room) room.classList.toggle("is-result", on); }
   totalEl.textContent = QUESTIONS.length;
 
   function el(tag, cls, text) {
@@ -101,11 +103,11 @@
 
   // 画面の切り替え（前の内容を左へ、新しい内容を右から）
   function swap(build, dir) {
-    var old = stage.firstElementChild;
+    var old = stage.querySelector(".quiz__panel");
     var next = build();
     var d = dir === "back" ? -1 : 1;
     function enter() {
-      stage.innerHTML = "";
+      Array.prototype.slice.call(stage.children).forEach(function (c) { if (c.tagName !== "NOSCRIPT") c.remove(); });
       stage.appendChild(next);
       if (!reduce && next.animate) {
         next.animate(
@@ -129,6 +131,7 @@
   }
 
   function renderQuestion(i, dir) {
+    setResultMode(false);
     countEl.hidden = false;
     nowEl.textContent = i + 1;
     bar.style.width = ((i + 1) / QUESTIONS.length) * 100 + "%";
@@ -185,6 +188,7 @@
     nowEl.textContent = QUESTIONS.length;
     bar.style.width = "100%";
     countEl.hidden = true;
+    setResultMode(true);
 
     swap(function () {
       var wrap = el("div", "quiz__panel qr");
@@ -200,6 +204,7 @@
       var actions = el("div", "qr__actions");
       var cta = el("a", "qr__cta", "無料受験相談で、詳しく聞く");
       cta.href = CTA_HREF;
+      cta.setAttribute("data-go", "");
       var retry = el("button", "qr__retry", "もう一度診断する");
       retry.type = "button";
       retry.addEventListener("click", function () {

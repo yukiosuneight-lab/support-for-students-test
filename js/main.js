@@ -1,324 +1,526 @@
 /* =========================================================
-   武田塾 部活引退生応援 特設サイト：スクロール演出
-   使用ライブラリ：GSAP + ScrollTrigger（演出）、Lenis（PCのなめらかスクロール）
-   「動きを減らす」設定の人や、ライブラリが読み込めない場合は演出なしで全文を表示します。
+   武田塾 部活引退生応援 特設サイト（部屋めぐり版）
+
+   ・スクロールすると、横に並んだ部屋を1つずつ移動します（GSAP + ScrollTrigger）。
+   ・移動中はカメラが少し引いて、部屋と部屋のあいだの廊下が見えます。
+   ・部屋に入ると、その部屋の演出が1回だけ再生されます。
+   ・「動きを減らす」設定の人や、ライブラリが読み込めない場合は、
+     部屋を縦に並べた普通のページとして表示します。
    ========================================================= */
 (function () {
   "use strict";
 
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var hasLibs = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
-  if (reduceMotion || !hasLibs) return;
-
-  document.documentElement.classList.add("motion");
-  gsap.registerPlugin(ScrollTrigger);
-  ScrollTrigger.config({ ignoreMobileResize: true });
-
+  var html = document.documentElement;
   var $ = function (s, r) { return (r || document).querySelector(s); };
-  var $$ = function (s, r) { return gsap.utils.toArray(s, r); };
-  var isMobile = function () { return window.innerWidth < 768; };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
 
-  /* ---------- Lenis（PCのホイールだけ慣性。スマホは端末本来のスクロール） ---------- */
-  if (typeof window.Lenis !== "undefined") {
-    var lenis = new Lenis({ lerp: 0.12, anchors: { offset: -60 } });
-    lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
-    gsap.ticker.lagSmoothing(0);
-  }
-
-  /* ---------- 進捗バー（CSSで動かせないブラウザ向け） ---------- */
-  if (!(window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()"))) {
-    gsap.to(".progress", { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: true } });
-  }
-
-  /* ---------- 文字を1文字ずつ span に分ける（<em>や<br>はそのまま） ---------- */
-  function splitChars(el) {
-    var original = el.textContent;
-    var visual = document.createElement("span");
-    visual.setAttribute("aria-hidden", "true");
-    function walk(src, dest) {
-      src.childNodes.forEach(function (n) {
-        if (n.nodeType === 3) {
-          Array.from(n.textContent).forEach(function (c) {
-            if (c === "\n" || c === " ") { dest.appendChild(document.createTextNode(c)); return; }
-            var s = document.createElement("span");
-            s.className = "ch";
-            s.style.display = "inline-block";
-            s.textContent = c;
-            dest.appendChild(s);
-          });
-        } else if (n.nodeType === 1) {
-          var clone = n.cloneNode(false);
-          dest.appendChild(clone);
-          walk(n, clone);
-        }
-      });
-    }
-    walk(el, visual);
-    var sr = document.createElement("span");
-    sr.className = "visually-hidden";
-    sr.textContent = original;
-    el.textContent = "";
-    el.appendChild(sr);
-    el.appendChild(visual);
-    return visual.querySelectorAll(".ch");
-  }
-
-  /* ---------- 手書き文字を「書いていく」ように表示 ---------- */
-  function writeIn(el, opts) {
-    return gsap.fromTo(el,
-      { clipPath: "inset(-20% 100% -20% 0%)" },
-      Object.assign({ clipPath: "inset(-20% 0% -20% 0%)", duration: 1.3, ease: "power1.inOut" }, opts || {})
-    );
-  }
-
-  /* =========================================================
-     1. ヒーロー：写真がカードから画面いっぱいに広がる
-     ========================================================= */
-  var heroLines = $$(".hero__line");
-  var heroNote = $(".hero__note .write");
-  var heroPhoto = $(".hero__photo");
-  var heroImg = $(".hero__photo img");
-  var heroSub = $$(".hero__sub .ln");
-
-  // 読み込み時の登場
-  gsap.from(heroLines, { yPercent: 45, autoAlpha: 0, duration: 1, ease: "power3.out", stagger: 0.14, delay: 0.1 });
-  gsap.from(heroPhoto, { autoAlpha: 0, y: 40, duration: 1.1, ease: "power3.out", delay: 0.3 });
-  writeIn(heroNote, { delay: 0.9 });
-  gsap.set(heroSub, { autoAlpha: 0, yPercent: 50 });
-
-  var mm = gsap.matchMedia();
-
-  mm.add("(max-width: 767px)", function () {
-    var tl = gsap.timeline({
-      defaults: { ease: "none" },
-      scrollTrigger: { trigger: ".hero", start: "top top", end: "+=170%", pin: true, scrub: 0.6, anticipatePin: 1 }
-    });
-    tl.to(heroPhoto, { top: 0, left: 0, right: 0, bottom: 0, borderRadius: 0, duration: 0.5, ease: "power1.inOut" }, 0)
-      .fromTo(heroImg, { scale: 1.18 }, { scale: 1, duration: 1 }, 0)
-      .to(".hero__copy", { y: -60, autoAlpha: 0, duration: 0.3 }, 0.08)
-      .to(heroPhoto, { "--shade": 1, duration: 0.3 }, 0.35)
-      .to(heroSub, { autoAlpha: 1, yPercent: 0, stagger: 0.08, duration: 0.25, ease: "power2.out" }, 0.45)
-      .to({}, { duration: 0.15 });
-  });
-
-  mm.add("(min-width: 768px)", function () {
-    var tl = gsap.timeline({
-      defaults: { ease: "none" },
-      scrollTrigger: { trigger: ".hero", start: "top top", end: "+=110%", pin: true, scrub: 0.6, anticipatePin: 1 }
-    });
-    tl.to(heroPhoto, { top: 0, right: 0, bottom: 0, left: "50%", borderRadius: 0, duration: 0.5, ease: "power1.inOut" }, 0)
-      .fromTo(heroImg, { scale: 1.15 }, { scale: 1, duration: 1 }, 0)
-      .to(heroSub, { autoAlpha: 1, yPercent: 0, stagger: 0.08, duration: 0.25, ease: "power2.out" }, 0.3)
-      .to({}, { duration: 0.2 });
-  });
-
-  /* ---------- スマホ下部ボタン：ヒーローを抜けたら出し、申し込み欄では隠す ---------- */
-  ScrollTrigger.create({
-    trigger: ".cheer",
-    start: "top 85%",
-    endTrigger: ".cta",
-    end: "top 70%",
-    toggleClass: { targets: ".dock", className: "is-shown" }
-  });
-
-  /* =========================================================
-     2. メッセージ：写真が広がり、言葉が浮かび上がる
-     ========================================================= */
-  gsap.fromTo(".cheer__photo",
-    { clipPath: "inset(14% 18% 14% 18% round 18px)" },
-    {
-      clipPath: "inset(0% 0% 0% 0% round 18px)",
-      ease: "none",
-      scrollTrigger: { trigger: ".cheer__photo", start: "top 92%", end: "center 52%", scrub: true }
-    }
-  );
-  gsap.fromTo(".cheer__photo img", { scale: 1.25 }, {
-    scale: 1, ease: "none",
-    scrollTrigger: { trigger: ".cheer__photo", start: "top 92%", end: "center 52%", scrub: true }
-  });
-
-  var cheerChars = splitChars($(".cheer__title"));
-  gsap.fromTo(cheerChars, { opacity: 0.12 }, {
-    opacity: 1, ease: "none", stagger: 0.05,
-    scrollTrigger: { trigger: ".cheer__title", start: "top 85%", end: "bottom 55%", scrub: true }
-  });
-
-  /* =========================================================
-     3. 協賛：スタジアムの奥行き → 応援の声とカードが流れる
-     ========================================================= */
-  gsap.fromTo(".support__stadium img", { yPercent: -10, scale: 1.2 }, {
-    yPercent: 10, scale: 1.2, ease: "none",
-    scrollTrigger: { trigger: ".support__stadium", start: "top bottom", end: "bottom top", scrub: true }
-  });
-
-  var supportChars = splitChars($(".support__title"));
-  gsap.from(supportChars, {
-    y: 36, autoAlpha: 0, rotate: 8, duration: 0.6, ease: "back.out(2.2)", stagger: 0.045,
-    scrollTrigger: { trigger: ".support__title", start: "top 82%", once: true }
-  });
-
-  var rail = $(".rally__rail");
-  var shout1 = $(".shout--1 .shout__text");
-  var shout2 = $(".shout--2 .shout__text");
-  var cards = $$(".rally__card");
-
-  function railShift() { return Math.max(0, rail.scrollWidth - window.innerWidth); }
-  function pinLength() { return Math.max(railShift() * 1.2, window.innerHeight * 0.9); }
-
-  var rallyTl = gsap.timeline({
-    defaults: { ease: "none" },
-    scrollTrigger: {
-      trigger: ".rally-zone",
-      start: "top top",
-      end: function () { return "+=" + pinLength(); },
-      pin: true,
-      scrub: 0.5,
-      anticipatePin: 1,
-      invalidateOnRefresh: true
-    }
-  });
-  rallyTl
-    .fromTo(rail, { x: function () { return isMobile() ? 0 : railShift() / 2; } }, { x: function () { return -railShift(); }, duration: 1 }, 0)
-    .fromTo(shout1, { x: 0 }, { x: function () { return -shout1.scrollWidth * 0.35; }, duration: 1 }, 0)
-    .fromTo(shout2, { x: function () { return -shout2.scrollWidth * 0.35; } }, { x: 0, duration: 1 }, 0);
-
-  // カードは画面に入ってくる途中で、上下から交互に飛び込んでくる
-  gsap.from(cards, {
-    y: function (i) { return i % 2 ? 110 : -110; },
-    rotate: function (i) { return i % 2 ? 8 : -8; },
-    autoAlpha: 0,
-    ease: "power2.out",
-    stagger: 0.08,
-    scrollTrigger: { trigger: ".rally-zone", start: "top 85%", end: "top 15%", scrub: 0.5 }
-  });
-  cards.forEach(function (card) {
-    rallyTl.fromTo(card.querySelector("img"), { xPercent: -6 }, { xPercent: 6, duration: 1 }, 0);
-  });
-
-  // 協賛一覧：手書き文字と、各大会が順に並ぶ
-  writeIn(".sponsor__note .write", { scrollTrigger: { trigger: ".sponsor__note", start: "top 85%", once: true } });
-  $$(".season").forEach(function (season) {
-    var tl = gsap.timeline({ scrollTrigger: { trigger: season, start: "top 82%", once: true } });
-    tl.from(season.querySelector(".season__tag"), { scale: 0.4, autoAlpha: 0, duration: 0.5, ease: "back.out(2.5)" })
-      .from(season.querySelectorAll("li"), { x: -24, autoAlpha: 0, duration: 0.45, stagger: 0.07, ease: "power2.out" }, 0.1)
-      .from(season.querySelectorAll("li svg"), { scale: 0, rotate: -90, duration: 0.5, stagger: 0.07, ease: "back.out(2.5)" }, 0.15);
-  });
-
-  /* =========================================================
-     4. 逆転のしくみ：画面を固定し、サイクルが1周する
-     ========================================================= */
-  var nodes = $$(".node");
-  var steps = $$(".cycle__step");
+  var rooms = $$(".room");
+  var N = rooms.length;
+  var navLinks = $$(".nav__list a");
+  var segs = $$(".roombar span");
+  var menuBtn = $(".menu-btn");
   var current = -1;
-  function setStep(i) {
+
+  /* =========================================================
+     どちらのモードでも使う部品
+     ========================================================= */
+
+  /* ---------- スマホのメニュー ---------- */
+  function setMenu(open) {
+    html.classList.toggle("menu-open", open);
+    menuBtn.setAttribute("aria-expanded", String(open));
+    $(".menu-btn__label").textContent = open ? "メニューを閉じる" : "メニュー";
+    if (open) {
+      var here = $(".nav__list a[aria-current='true']") || navLinks[0];
+      here.focus({ preventScroll: true });
+    }
+  }
+  menuBtn.addEventListener("click", function () {
+    setMenu(!html.classList.contains("menu-open"));
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && html.classList.contains("menu-open")) {
+      setMenu(false);
+      menuBtn.focus();
+    }
+  });
+
+  /* ---------- いまいる部屋を、メニュー・区切り・PCの表示に反映 ---------- */
+  var hereNo = $("[data-here-no]");
+  var hereName = $("[data-here-name]");
+  var walkBtns = $$("[data-walk]");
+  function setCurrent(i) {
     if (i === current) return;
     current = i;
-    nodes.forEach(function (n, k) { n.classList.toggle("is-on", k <= i); });
-    steps.forEach(function (s, k) { s.classList.toggle("is-on", k === i); });
+    navLinks.forEach(function (a, k) {
+      if (k === i) a.setAttribute("aria-current", "true");
+      else a.removeAttribute("aria-current");
+    });
+    if (hereNo) hereNo.textContent = pad(i + 1);
+    if (hereName) hereName.textContent = rooms[i].dataset.name;
+    walkBtns.forEach(function (b) {
+      var d = +b.dataset.walk;
+      b.disabled = (i + d < 0 || i + d > N - 1);
+    });
   }
-  setStep(0);
+  function setSegments(r) {
+    segs.forEach(function (s, k) { s.style.setProperty("--f", clamp(r - (k - 1), 0, 1)); });
+  }
 
-  gsap.timeline({
-    scrollTrigger: {
-      trigger: ".why",
-      start: "top top",
-      end: "+=260%",
-      pin: true,
-      scrub: 0.4,
-      anticipatePin: 1,
-      onUpdate: function (self) {
-        setStep(Math.min(3, Math.floor(self.progress * 4 * 0.999)));
+  /* ---------- 協賛大会の「春 / 夏」タブ（スマホ） ---------- */
+  var tabs = $$(".season-tabs [role='tab']");
+  function selectTab(t) {
+    tabs.forEach(function (x) {
+      var on = x === t;
+      x.setAttribute("aria-selected", String(on));
+      x.tabIndex = on ? 0 : -1;
+      var panel = document.getElementById(x.getAttribute("aria-controls"));
+      panel.hidden = !on;
+      if (on && panel.animate && !reduce) {
+        panel.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 300, easing: "ease-out" });
       }
+    });
+  }
+  tabs.forEach(function (t, k) {
+    t.addEventListener("click", function () { selectTab(t); });
+    t.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      e.preventDefault();
+      e.stopPropagation();
+      var next = tabs[(k + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+      selectTab(next);
+      next.focus();
+    });
+  });
+
+  /* ---------- 逆転のしくみ：4つのステップ ---------- */
+  var nodes = $$(".node");
+  var steps = $$(".cycle__step");
+  var ring = $(".cycle__ring");
+  var methodRoom = $(".room--method");
+  var autoTimer = null;
+  var stepNow = 0;
+  function setStep(i) {
+    stepNow = i;
+    nodes.forEach(function (n, k) {
+      n.classList.toggle("is-on", k === i);
+      n.classList.toggle("is-done", k < i);
+      n.setAttribute("aria-pressed", String(k === i));
+    });
+    steps.forEach(function (s, k) { s.classList.toggle("is-on", k === i); });
+    ring.style.setProperty("--ring", String(1 - (i + 1) / 4));
+  }
+  function stopAuto() { clearInterval(autoTimer); autoTimer = null; }
+  function startAuto() {
+    stopAuto();
+    autoTimer = setInterval(function () {
+      // 部屋にいないあいだは進めない
+      if (html.classList.contains("rooms") && !methodRoom.classList.contains("is-here")) return;
+      setStep((stepNow + 1) % 4);
+    }, 2600);
+  }
+  nodes.forEach(function (n) {
+    n.addEventListener("click", function () {
+      stopAuto();
+      setStep(+n.dataset.step);
+    });
+  });
+
+  /* =========================================================
+     モードの決定
+     ========================================================= */
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var hasLibs = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
+
+  selectTab(tabs[0]);
+
+  if (reduce || !hasLibs) {
+    flowMode();
+  } else {
+    roomsMode();
+  }
+
+  /* =========================================================
+     普通のページ（部屋を縦に並べる）
+     ========================================================= */
+  function flowMode() {
+    setStep(0);
+    // <head>で外した #部屋名 を戻して、その場所へ移動
+    if (window.__startHash) {
+      var t = document.getElementById(window.__startHash);
+      if (history.replaceState) history.replaceState(null, "", "#" + window.__startHash);
+      if (t) t.scrollIntoView();
     }
-  })
-    .fromTo(".cycle__bar", { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "none", duration: 1 })
-    .fromTo(".cycle__center p", { scale: 0.85 }, { scale: 1, ease: "none", duration: 1 }, 0);
-
-  /* =========================================================
-     4-2. 実績：数字のカウントアップと、グラフの伸び
-     ========================================================= */
-  function formatNum(v, decimals) {
-    return v.toLocaleString("ja-JP", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-  }
-  function countTo(el, value, opts) {
-    var d = +(el.dataset.decimals || 0);
-    var prefix = el.dataset.prefix || "";
-    var o = { v: 0 };
-    return gsap.to(o, Object.assign({
-      v: value,
-      ease: "power2.out",
-      onUpdate: function () { el.textContent = prefix + formatNum(o.v, d); }
-    }, opts || {}));
-  }
-
-  $$(".stat .count").forEach(function (el) {
-    el.textContent = (el.dataset.prefix || "") + formatNum(0, +(el.dataset.decimals || 0));
-    countTo(el, +el.dataset.to, { duration: 1.6, scrollTrigger: { trigger: ".stats", start: "top 82%", once: true } });
-  });
-  gsap.from(".stat", {
-    y: 30, autoAlpha: 0, duration: 0.6, stagger: 0.1, ease: "power2.out",
-    scrollTrigger: { trigger: ".stats", start: "top 85%", once: true }
-  });
-
-  var before = $(".bar--before .count");
-  var after = $(".bar--after .count");
-  var chartTl = gsap.timeline({
-    defaults: { ease: "none" },
-    scrollTrigger: { trigger: ".chart", start: "top 78%", end: "bottom 70%", scrub: 0.5 }
-  });
-  chartTl
-    .fromTo(".bar--before .bar__fill", { scaleY: 0 }, { scaleY: 1, duration: 0.3 }, 0)
-    .fromTo(".bar--before .bar__num", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, 0)
-    .add(countTo(before, 41, { duration: 0.3, ease: "none" }), 0)
-    .fromTo(".chart__arrow-line", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.3 }, 0.3)
-    .fromTo(".chart__arrow-head", { autoAlpha: 0, scale: 0.4, transformOrigin: "100% 0%" }, { autoAlpha: 1, scale: 1, duration: 0.08 }, 0.55)
-    .fromTo(".bar--after .bar__fill", { scaleY: 0 }, { scaleY: 1, duration: 0.35 }, 0.55)
-    .fromTo(".bar--after .bar__num", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, 0.55)
-    .add(countTo(after, 63, { duration: 0.35, ease: "none" }), 0.55);
-
-  writeIn(".chart__note .write", { scrollTrigger: { trigger: ".chart__note", start: "top 88%", once: true } });
-  gsap.from(".chips li", {
-    scale: 0.6, autoAlpha: 0, duration: 0.5, stagger: 0.07, ease: "back.out(2.2)",
-    scrollTrigger: { trigger: ".chips", start: "top 92%", once: true }
-  });
-
-  /* =========================================================
-     5. 診断：カードがせり上がる（中の切り替えは quiz.js）
-     ========================================================= */
-  gsap.from(".quiz", {
-    y: 60, autoAlpha: 0, duration: 0.9, ease: "power3.out",
-    scrollTrigger: { trigger: ".quiz", start: "top 88%", once: true }
-  });
-  // 診断の内容が変わって高さが変わったら、下の演出位置を計算し直す
-  if ("ResizeObserver" in window) {
-    var t;
-    new ResizeObserver(function () {
-      clearTimeout(t);
-      t = setTimeout(function () { ScrollTrigger.refresh(); }, 200);
-    }).observe($(".quiz"));
+    // メニューのリンクを押したらメニューを閉じる（移動はブラウザ標準のページ内リンク）
+    document.addEventListener("click", function (e) {
+      if (e.target.closest("a[href^='#']")) setMenu(false);
+    });
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var line = window.innerHeight * 0.4;
+      var cur = 0;
+      rooms.forEach(function (r, k) { if (r.getBoundingClientRect().top <= line) cur = k; });
+      setCurrent(cur);
+      setSegments(cur);
+    }
+    window.addEventListener("scroll", function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
   }
 
   /* =========================================================
-     6. CTA：写真がゆっくり寄り、言葉が立ち上がる
+     部屋めぐり
      ========================================================= */
-  gsap.fromTo(".cta__photo img", { scale: 1.25, yPercent: -6 }, {
-    scale: 1, yPercent: 0, ease: "none",
-    scrollTrigger: { trigger: ".cta__photo", start: "top bottom", end: "bottom 40%", scrub: true }
-  });
-  var ctaChars = splitChars($(".cta__title"));
-  gsap.from(ctaChars, {
-    yPercent: 70, autoAlpha: 0, duration: 0.7, stagger: 0.05, ease: "power3.out",
-    scrollTrigger: { trigger: ".cta__title", start: "top 85%", once: true }
-  });
-  gsap.from(".btn-cta", {
-    y: 24, autoAlpha: 0, scale: 0.94, duration: 0.7, ease: "back.out(1.8)",
-    scrollTrigger: { trigger: ".btn-cta", start: "top 92%", once: true }
-  });
+  function roomsMode() {
+    html.classList.add("rooms");
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
 
-  /* ---------- フォントや画像の読み込み後に位置を再計算 ---------- */
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+    var stage = $(".stage");
+    var lens = $(".lens");
+    var track = $(".track");
+    var isMobile = function () { return window.innerWidth < 768; };
+
+    /* ---------- 部屋と部屋のあいだに、次の部屋の名札を置く ---------- */
+    rooms.forEach(function (room, i) {
+      if (i === N - 1) return;
+      var g = document.createElement("div");
+      g.className = "gap";
+      g.setAttribute("aria-hidden", "true");
+      g.innerHTML = '<p class="gap__no">' + pad(i + 2) + '</p><p class="gap__name"></p>';
+      g.querySelector(".gap__name").textContent = rooms[i + 1].dataset.name;
+      room.after(g);
+    });
+
+    /* ---------- 応援カードを2周分に増やして、切れ目なく流す ---------- */
+    var rail = $(".rally__rail");
+    $$(".rally__card", rail).forEach(function (li) {
+      var c = li.cloneNode(true);
+      c.setAttribute("aria-hidden", "true");
+      c.querySelector("img").alt = "";
+      rail.appendChild(c);
+    });
+
+    /* ---------- スクロールの長さ（1部屋につき画面1つぶん） ---------- */
+    var runway = document.createElement("div");
+    runway.className = "runway";
+    document.body.appendChild(runway);
+    function setRunway() {
+      runway.style.height = ((N - 1) * window.innerHeight + window.innerHeight) + "px";
+    }
+    setRunway();
+
+    function stepPx() {
+      var g = $(".gap");
+      return rooms[0].offsetWidth + (g ? g.offsetWidth : 0);
+    }
+
+    /* ---------- 部屋の移動（スクロール量に合わせて再生） ---------- */
+    var visualR = 0;
+    var move = gsap.timeline({
+      defaults: { ease: "none" },
+      onUpdate: function () { onMove(move.progress() * (N - 1)); },
+      scrollTrigger: {
+        trigger: runway,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.7,
+        invalidateOnRefresh: true,
+        snap: {
+          snapTo: 1 / (N - 1),
+          inertia: false,
+          duration: { min: 0.3, max: 0.8 },
+          delay: 0.05,
+          ease: "power1.inOut"
+        }
+      }
+    });
+
+    for (var i = 0; i < N - 1; i++) {
+      (function (i) {
+        var zoom = function () { return isMobile() ? 0.8 : 0.86; };
+        move
+          // 廊下を歩く
+          .fromTo(track, { x: function () { return -i * stepPx(); } },
+            { x: function () { return -(i + 1) * stepPx(); }, duration: 1, ease: "power2.inOut", immediateRender: false }, i)
+          // 歩きながらカメラが少し引いて、着いたら寄る
+          .fromTo(lens, { scale: 1 }, { scale: zoom, duration: 0.5, ease: "sine.out", immediateRender: false }, i)
+          .fromTo(lens, { scale: zoom }, { scale: 1, duration: 0.5, ease: "sine.in", immediateRender: false }, i + 0.5)
+          // 引いているあいだは部屋の角が丸くなる
+          .fromTo(track, { "--r": "0px" }, { "--r": "24px", duration: 0.5, ease: "sine.out", immediateRender: false }, i)
+          .fromTo(track, { "--r": "24px" }, { "--r": "0px", duration: 0.5, ease: "sine.in", immediateRender: false }, i + 0.5);
+
+        // 写真は部屋より少し遅れて動き、奥行きを出す
+        var leave = $$(".room__bg img", rooms[i]);
+        var arrive = $$(".room__bg img", rooms[i + 1]);
+        if (leave.length) move.fromTo(leave, { xPercent: 0 }, { xPercent: 9, duration: 1, immediateRender: false }, i);
+        if (arrive.length) move.fromTo(arrive, { xPercent: -9 }, { xPercent: 0, duration: 1, immediateRender: false }, i);
+      })(i);
+    }
+
+    var st = move.scrollTrigger;
+    function scrollYFor(i) { return st.start + (st.end - st.start) * (i / (N - 1)); }
+
+    /* ---------- 移動中の処理 ---------- */
+    var entered = [];
+    function onMove(r) {
+      visualR = r;
+      setSegments(r);
+      setCurrent(clamp(Math.round(r), 0, N - 1));
+      rooms.forEach(function (room, k) {
+        var d = Math.abs(r - k);
+        room.classList.toggle("is-here", d < 0.5);
+        if (d < 0.35 && !entered[k]) enter(k);
+      });
+    }
+
+    /* ---------- 部屋への移動（メニュー・ボタン・キー操作） ---------- */
+    var curtain = $(".curtain");
+    function jumpTo(i) {
+      window.scrollTo(0, scrollYFor(i));
+      ScrollTrigger.update();
+      var tw = st.getTween && st.getTween();
+      if (tw) tw.progress(1);
+      move.progress(i / (N - 1));
+      onMove(i);
+    }
+    function goTo(i, opts) {
+      i = clamp(i, 0, N - 1);
+      opts = opts || {};
+      if (opts.jump) { jumpTo(i); return; }
+      if (Math.abs(i - visualR) <= 1.05) {
+        // となりの部屋：そのまま歩いて移動
+        window.scrollTo(0, scrollYFor(i));
+        return;
+      }
+      // 離れた部屋：幕を下ろして移動
+      $(".curtain__no", curtain).textContent = pad(i + 1);
+      $(".curtain__name", curtain).textContent = rooms[i].dataset.name;
+      gsap.timeline()
+        .to(curtain, { autoAlpha: 1, duration: 0.28, ease: "power1.out" })
+        .from([".curtain__no", ".curtain__name"], { y: 16, autoAlpha: 0, duration: 0.3, stagger: 0.06, ease: "power2.out" }, 0.08)
+        .add(function () { jumpTo(i); }, 0.4)
+        .to(curtain, { autoAlpha: 0, duration: 0.45, ease: "power1.inOut" }, 0.75);
+    }
+
+    // ページ内リンク（メニュー、申し込みボタンなど）
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest("a[href^='#']");
+      if (!a) return;
+      var id = a.getAttribute("href").slice(1);
+      var target = id && document.getElementById(id);
+      var room = target && target.closest(".room");
+      if (!room) return;
+      e.preventDefault();
+      var wasOpen = html.classList.contains("menu-open");
+      setMenu(false);
+      var k = rooms.indexOf(room);
+      if (wasOpen) setTimeout(function () { goTo(k); }, 120);
+      else goTo(k);
+      if (history.replaceState) history.replaceState(null, "", k === 0 ? location.pathname : "#" + room.id);
+    });
+
+    // PCの前後ボタン
+    walkBtns.forEach(function (b) {
+      b.addEventListener("click", function () { goTo(current + +b.dataset.walk); });
+    });
+
+    // 左右キーでも移動
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      if (e.target.closest && e.target.closest("input, textarea, select, [role='tab']")) return;
+      if (html.classList.contains("menu-open")) return;
+      e.preventDefault();
+      goTo(current + (e.key === "ArrowRight" ? 1 : -1));
+    });
+
+    // Tabキーで別の部屋の要素に移ったら、その部屋へ
+    document.addEventListener("focusin", function (e) {
+      var room = e.target.closest && e.target.closest(".room");
+      if (!room) return;
+      var k = rooms.indexOf(room);
+      if (k !== current) goTo(k, { jump: true });
+    });
+    // フォーカスでブラウザが部屋の中を勝手にスクロールしないようにする
+    stage.addEventListener("scroll", function (e) {
+      var t = e.target;
+      if (t.scrollLeft || t.scrollTop) { t.scrollLeft = 0; t.scrollTop = 0; }
+    }, true);
+
+    // 画面サイズが変わっても、いまいる部屋にとどまる
+    var keep = 0;
+    var pendingStart = -1;
+    ScrollTrigger.addEventListener("refreshInit", function () {
+      keep = pendingStart >= 0 ? pendingStart : current;
+      setRunway();
+    });
+    ScrollTrigger.addEventListener("refresh", function () { jumpTo(keep); });
+
+    /* =========================================================
+       部屋ごとの演出（はじめて部屋に入ったときに1回再生）
+       ========================================================= */
+    function splitChars(el) {
+      var original = el.textContent;
+      var visual = document.createElement("span");
+      visual.setAttribute("aria-hidden", "true");
+      (function walk(src, dest) {
+        Array.prototype.forEach.call(src.childNodes, function (n) {
+          if (n.nodeType === 3) {
+            Array.from(n.textContent).forEach(function (c) {
+              if (/\s/.test(c)) { dest.appendChild(document.createTextNode(c)); return; }
+              var s = document.createElement("span");
+              s.className = "ch";
+              s.style.display = "inline-block";
+              s.textContent = c;
+              dest.appendChild(s);
+            });
+          } else if (n.nodeType === 1) {
+            var clone = n.cloneNode(false);
+            dest.appendChild(clone);
+            walk(n, clone);
+          }
+        });
+      })(el, visual);
+      var sr = document.createElement("span");
+      sr.className = "visually-hidden";
+      sr.textContent = original;
+      el.textContent = "";
+      el.appendChild(sr);
+      el.appendChild(visual);
+      return $$(".ch", visual);
+    }
+    function writeIn(tl, el, at) {
+      tl.fromTo(el, { clipPath: "inset(-20% 100% -20% 0%)" }, { clipPath: "inset(-20% 0% -20% 0%)", duration: 1.2, ease: "power1.inOut" }, at);
+    }
+    function fmt(v, d) { return v.toLocaleString("ja-JP", { minimumFractionDigits: d, maximumFractionDigits: d }); }
+    function countUp(tl, el, at, dur) {
+      var d = +(el.dataset.decimals || 0);
+      var prefix = el.dataset.prefix || "";
+      var o = { v: 0 };
+      el.textContent = prefix + fmt(0, d);
+      tl.to(o, {
+        v: +el.dataset.to, duration: dur || 1.4, ease: "power2.out",
+        onUpdate: function () { el.textContent = prefix + fmt(o.v, d); }
+      }, at);
+    }
+
+    var builders = {
+      /* 01 トップ */
+      "room--hero": function (room, tl) {
+        tl.from($$(".hero__line", room), { yPercent: 45, opacity: 0, duration: 1, ease: "power3.out", stagger: 0.14 }, 0.1)
+          .from($(".hero__photo", room), { opacity: 0, duration: 1.2, ease: "power2.out" }, 0)
+          .from($(".hero__photo img", room), { scale: 1.45, duration: 1.8, ease: "power3.out" }, 0);
+        writeIn(tl, $(".hero__note .write", room), 0.8);
+        tl.from($$(".hero__sub .ln", room), { y: 18, opacity: 0, duration: 0.8, ease: "power2.out", stagger: 0.12 }, 1.1)
+          .from($(".hint", room), { opacity: 0, duration: 0.6 }, 1.8);
+      },
+      /* 02 メッセージ */
+      "room--message": function (room, tl) {
+        var chars = splitChars($(".message__title", room));
+        tl.fromTo($(".message__photo", room), { clipPath: "inset(16% 22% 16% 22% round 18px)" }, { clipPath: "inset(0% 0% 0% 0% round 18px)", duration: 1.1, ease: "power3.inOut" }, 0)
+          .from($(".message__photo img", room), { scale: 1.5, duration: 1.4, ease: "power3.out" }, 0)
+          .from($(".pill", room), { opacity: 0, y: 10, duration: 0.5 }, 0.6)
+          .fromTo(chars, { opacity: 0.1 }, { opacity: 1, duration: 0.2, stagger: 0.035, ease: "none" }, 0.7)
+          .from($(".message__text", room), { opacity: 0, y: 14, duration: 0.6 }, 1.5);
+      },
+      /* 03 応援 */
+      "room--cheer": function (room, tl) {
+        var chars = splitChars($(".cheer__title", room));
+        tl.from($(".pill", room), { opacity: 0, y: 10, duration: 0.5 }, 0.1)
+          .from(chars, { y: 34, opacity: 0, rotate: 10, duration: 0.6, ease: "back.out(2.4)", stagger: 0.045 }, 0.2)
+          .from($(".cheer__lead", room), { opacity: 0, y: 14, duration: 0.6 }, 0.8)
+          .from($(".shout", room), { opacity: 0, duration: 0.8 }, 0.6)
+          .from($(".rally__window", room), { xPercent: 30, opacity: 0, duration: 1, ease: "power3.out" }, 0.5);
+      },
+      /* 04 協賛大会 */
+      "room--sponsor": function (room, tl) {
+        tl.from($(".sponsor__title", room), { opacity: 0, y: 20, duration: 0.7, ease: "power2.out" }, 0);
+        writeIn(tl, $(".sponsor__note .write", room), 0.4);
+        tl.from([$(".sponsor__lead", room), $(".season-tabs", room)], { opacity: 0, y: 12, duration: 0.5, stagger: 0.1 }, 0.3)
+          .from($$(".season__tag", room), { scale: 0.4, opacity: 0, duration: 0.5, ease: "back.out(2.5)" }, 0.5)
+          .from($$(".season__list li", room), { x: -22, opacity: 0, duration: 0.45, stagger: 0.06, ease: "power2.out" }, 0.55)
+          .from($$(".season__list svg", room), { scale: 0, rotate: -90, duration: 0.5, stagger: 0.06, ease: "back.out(2.5)" }, 0.6);
+      },
+      /* 05 逆転のしくみ */
+      "room--method": function (room, tl) {
+        ring.style.setProperty("--ring", "1");
+        tl.from($(".method__head", room), { opacity: 0, y: 18, duration: 0.7 }, 0)
+          .from($$(".node", room), { scale: 0, duration: 0.6, stagger: 0.12, ease: "back.out(2)", clearProps: "transform,translate,rotate,scale" }, 0.3)
+          .from($(".cycle__center", room), { opacity: 0, scale: 0.8, duration: 0.6 }, 0.6)
+          .from($(".cycle__steps", room), { opacity: 0, y: 16, duration: 0.6 }, 0.9)
+          .add(function () { setStep(0); startAuto(); }, 0.9);
+      },
+      /* 06 実績 */
+      "room--results": function (room, tl) {
+        tl.from($(".results__title", room), { opacity: 0, y: 20, duration: 0.7 }, 0)
+          .from($(".results__lead", room), { opacity: 0, y: 12, duration: 0.5 }, 0.2)
+          .from($$(".stat", room), { opacity: 0, y: 24, duration: 0.6, stagger: 0.1, ease: "power2.out" }, 0.3);
+        $$(".stat .count", room).forEach(function (el) { countUp(tl, el, 0.45, 1.5); });
+        tl.from($(".chart", room), { opacity: 0, y: 24, duration: 0.6 }, 0.5)
+          .fromTo($(".bar--before .bar__fill", room), { scaleY: 0 }, { scaleY: 1, duration: 0.8, ease: "power2.out" }, 0.9)
+          .from($(".bar--before .bar__num", room), { opacity: 0, duration: 0.3 }, 0.9);
+        countUp(tl, $(".bar--before .count", room), 0.9, 0.8);
+        tl.fromTo($(".chart__arrow-line", room), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.6, ease: "power1.inOut" }, 1.5)
+          .from($(".chart__arrow-head", room), { opacity: 0, scale: 0.4, transformOrigin: "100% 0%", duration: 0.25 }, 2.0)
+          .fromTo($(".bar--after .bar__fill", room), { scaleY: 0 }, { scaleY: 1, duration: 1, ease: "power3.out" }, 2.0)
+          .from($(".bar--after .bar__num", room), { opacity: 0, duration: 0.3 }, 2.0);
+        countUp(tl, $(".bar--after .count", room), 2.0, 1);
+        writeIn(tl, $(".chart__note .write", room), 2.6);
+        tl.from($$(".chips li", room), { scale: 0.6, opacity: 0, duration: 0.45, stagger: 0.06, ease: "back.out(2.2)" }, 2.4);
+      },
+      /* 07 やり方診断 */
+      "room--diagnosis": function (room, tl) {
+        tl.from($$(".diag__head > *", room), { opacity: 0, y: 18, duration: 0.6, stagger: 0.1 }, 0)
+          .from($(".quiz", room), { opacity: 0, y: 40, duration: 0.8, ease: "power3.out" }, 0.3)
+          .from($(".quiz__stage", room), { opacity: 0, y: 14, duration: 0.6 }, 0.7);
+      },
+      /* 08 無料相談 */
+      "room--consult": function (room, tl) {
+        var chars = splitChars($(".consult__title", room));
+        tl.from($(".consult__photo img", room), { scale: 1.5, duration: 1.6, ease: "power3.out" }, 0)
+          .from($(".pill", room), { opacity: 0, y: 10, duration: 0.5 }, 0.3)
+          .from(chars, { yPercent: 70, opacity: 0, duration: 0.7, stagger: 0.05, ease: "power3.out" }, 0.4)
+          .from($(".consult__text", room), { opacity: 0, y: 14, duration: 0.6 }, 0.9)
+          .from($(".btn-cta", room), { opacity: 0, y: 20, scale: 0.92, duration: 0.7, ease: "back.out(1.8)" }, 1.2);
+      }
+    };
+
+    var entrances = rooms.map(function (room) {
+      var tl = gsap.timeline({ paused: true });
+      Object.keys(builders).some(function (cls) {
+        if (room.classList.contains(cls)) { builders[cls](room, tl); return true; }
+        return false;
+      });
+      return tl;
+    });
+    function enter(k) {
+      entered[k] = true;
+      entrances[k].play();
+    }
+
+    /* ---------- はじめの表示 ---------- */
+    onMove(0);
+
+    // 共有されたURLに #部屋名 が付いていたら、その部屋から始める
+    // （#は<head>の中でいったん外してあるので、ここで付け直す）
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    var startRoom = window.__startHash && document.getElementById(window.__startHash);
+    var startIndex = startRoom ? rooms.indexOf(startRoom.closest(".room")) : -1;
+    if (startIndex > 0) {
+      pendingStart = startIndex;
+      jumpTo(startIndex);
+      if (history.replaceState) history.replaceState(null, "", "#" + rooms[startIndex].id);
+      window.addEventListener("load", function () {
+        setTimeout(function () { pendingStart = -1; }, 300);
+      });
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+    }
   }
-  window.addEventListener("load", function () { ScrollTrigger.refresh(); });
 })();

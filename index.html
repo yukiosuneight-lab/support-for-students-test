@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>引退、おつかれさま。次は、受験だ。｜武田塾</title>
   <meta name="description" content="部活をやり切った高校生を、武田塾は全力で応援します。授業をしない武田塾の“正しいやり方”なら、引退してからでも逆転できる。無料のやり方診断・受験相談受付中。">
-  <meta name="theme-color" content="#FFFFFF">
+  <meta name="theme-color" content="#14224B">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="努力は量じゃない、“やり方”だ。｜武田塾">
@@ -17,11 +17,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Yomogi&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+  <script>
+    document.documentElement.classList.add("js");
+    // URLの #部屋名 は、ブラウザが勝手にスクロールしないよう一度外し、main.js で部屋へ移動します
+    if (location.hash && history.replaceState) {
+      window.__startHash = decodeURIComponent(location.hash.slice(1));
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  </script>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- アイコン（協賛大会の競技） -->
+  <!-- 協賛大会の競技アイコン -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
       <symbol id="i-ball" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M7.2 4.6c1.6 2 2.4 4.5 2.4 7.4s-.8 5.4-2.4 7.4M16.8 4.6c-1.6 2-2.4 4.5-2.4 7.4s.8 5.4 2.4 7.4"/><path d="M8.4 7.4l1.6-.4M9.4 10.2l1.6-.1M9.4 13.8l1.6.1M8.4 16.6l1.6.4M15.6 7.4l-1.6-.4M14.6 10.2l-1.6-.1M14.6 13.8l-1.6.1M15.6 16.6l-1.6.4" stroke-width="1.2"/></g></symbol>
@@ -34,268 +42,295 @@
     </defs>
   </svg>
 
-  <div class="progress" aria-hidden="true"></div>
-
+  <!-- ===================== ヘッダー（全メニュー） ===================== -->
   <header class="header">
-    <a class="header__logo" href="#top" aria-label="武田塾 トップへ">武田塾</a>
-    <nav class="header__nav" aria-label="ページ内リンク">
-      <a href="#diagnosis">やり方診断</a>
-      <a class="header__cta" href="#cta">無料受験相談</a>
+    <a class="header__logo" href="#top" data-go>武田塾</a>
+
+    <nav class="nav" id="site-nav" aria-label="サイト内メニュー">
+      <ol class="nav__list">
+        <li><a href="#top" data-go><span class="nav__no">01</span>トップ</a></li>
+        <li><a href="#message" data-go><span class="nav__no">02</span>メッセージ</a></li>
+        <li><a href="#cheer" data-go><span class="nav__no">03</span>武田塾の応援</a></li>
+        <li><a href="#sponsor" data-go><span class="nav__no">04</span>協賛大会</a></li>
+        <li><a href="#method" data-go><span class="nav__no">05</span>逆転のしくみ</a></li>
+        <li><a href="#results" data-go><span class="nav__no">06</span>実績</a></li>
+        <li><a href="#diagnosis" data-go><span class="nav__no">07</span>やり方診断</a></li>
+        <li><a href="#consult" data-go><span class="nav__no">08</span>無料相談</a></li>
+      </ol>
+      <a class="nav__cta" href="#consult" data-go>無料で受験相談する</a>
     </nav>
+
+    <a class="header__cta" href="#consult" data-go>無料相談</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="menu-btn__bars" aria-hidden="true"></span>
+      <span class="menu-btn__label">メニュー</span>
+    </button>
+
+    <!-- いまどの部屋にいるか（8つの区切り） -->
+    <div class="roombar" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
   </header>
 
-  <main id="top">
+  <!-- ===================== 部屋（スクロールで横に移動） ===================== -->
+  <main class="stage">
+    <div class="lens">
+    <div class="track">
 
-    <!-- ===================== 1. 応援メッセージ（ヒーロー） ===================== -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero__copy">
-        <h1 id="hero-title" class="hero__title">
-          <span class="hero__line">努力は量じゃない、</span>
-          <span class="hero__line">“<em>やり方</em>”だ。</span>
-        </h1>
-        <p class="hand hero__note"><span class="write">引退、おつかれさま。<br>次は、受験だ。</span></p>
-      </div>
-
-      <figure class="hero__photo">
-        <!-- 仮の画像です。本番の写真に差し替えてください -->
-        <img src="images/hero.jpg" alt="夕日の差すグラウンドで、空を見上げる部活ジャージ姿の高校生" width="464" height="650" fetchpriority="high">
-      </figure>
-
-      <p class="hero__sub"><span class="ln">部活も、受験も。</span><span class="ln">これまでの頑張りは、</span><span class="ln">正しいやり方で報われる。</span></p>
-    </section>
-
-    <!-- ===================== 2. 武田塾からのメッセージ ===================== -->
-    <section class="cheer" aria-labelledby="cheer-title">
-      <div class="cheer__inner">
-        <figure class="cheer__photo">
-          <img src="images/team.jpg" alt="ユニフォーム姿で肩を組み、笑い合う部活仲間たち" width="862" height="392" loading="lazy">
-        </figure>
-        <p class="pill">武田塾からのメッセージ</p>
-        <h2 id="cheer-title" class="cheer__title" data-fill>部活をやり切った学生を、<br>武田塾は<em>全力で応援します！</em></h2>
-        <p class="cheer__text">最後の試合まで、全力で。<br class="sp">そのあとの受験も、全力で支えます。</p>
-      </div>
-    </section>
-
-    <!-- ===================== 3. 協賛情報 ===================== -->
-    <section class="support" aria-labelledby="support-title">
-      <figure class="support__stadium">
-        <img src="images/stadium.jpg" alt="甲子園球場の外野スタンドを背に笑顔を見せる高校生と、武田塾の看板「やりきったその先へ」" width="1024" height="345" loading="lazy">
-      </figure>
-
-      <div class="support__intro">
-        <p class="pill">武田塾の応援</p>
-        <h2 id="support-title" class="support__title">部活も、受験も<br class="sp">欲張れ!!</h2>
-        <p class="support__lead">どっちかを選ぶ必要なんて、ない。<br>部活を最後までやりきっても、<br class="sp">“やり方”さえ変えれば、<br class="sp">引退してからでも逆転できる。<br>武田塾は、全部に本気なきみの味方です。</p>
-      </div>
-
-      <div class="rally-zone">
-      <div class="shout shout--1" aria-hidden="true">
-        <p class="shout__text">いけー！ ナイス！ まだいける！ いけー！ ナイス！ まだいける！</p>
-      </div>
-
-      <div class="rally">
-        <ul class="rally__rail">
-          <li class="rally__card"><img src="images/cheer-1.jpg" alt="野球：バットを構える選手" width="212" height="196" loading="lazy"></li>
-          <li class="rally__card"><img src="images/cheer-2.jpg" alt="バレーボール：スパイクを打つ選手" width="230" height="196" loading="lazy"></li>
-          <li class="rally__card"><img src="images/cheer-3.jpg" alt="ダンス：躍動する選手" width="238" height="196" loading="lazy"></li>
-          <li class="rally__card"><img src="images/cheer-4.jpg" alt="ハンドボール：シュートを狙う選手" width="226" height="196" loading="lazy"></li>
-          <li class="rally__card"><img src="images/cheer-5.jpg" alt="サッカー：ボールを運ぶ選手" width="206" height="196" loading="lazy"></li>
-        </ul>
-      </div>
-
-      <div class="shout shout--2" aria-hidden="true">
-        <p class="shout__text">ラスト！ がんばれ！ 全員、応援してる。 ラスト！ がんばれ！</p>
-      </div>
-      </div>
-
-      <div class="sponsor">
-        <div class="sponsor__head">
-          <h3 class="sponsor__title">頑張る高校生を、<br class="sp">応援します。</h3>
-          <p class="hand sponsor__note"><span class="write">全員、応援してる。</span></p>
-          <p class="sponsor__lead">勉強だけではありません。全国の、頑張る場所に。</p>
-        </div>
-
-        <div class="season-grid">
-          <div class="season season--spring">
-            <p class="season__tag">春</p>
-            <ul class="season__list">
-              <li><svg><use href="#i-ball"/></svg>選抜高等学校野球大会（阪神甲子園球場 壁面広告）</li>
-              <li><svg><use href="#i-dance"/></svg>日本高校ダンス部選手権 DANCE STADIUM（春・新人戦）</li>
-              <li><svg><use href="#i-volley"/></svg>全国私立高等学校男女バレーボール選手権大会（さくらバレー）</li>
-              <li><svg><use href="#i-run"/></svg>全国高等学校ハンドボール選抜大会</li>
-              <li><svg><use href="#i-glove"/></svg>全国高等学校ボクシング選抜大会</li>
-              <li><svg><use href="#i-wrestle"/></svg>風間杯争奪全国高等学校選抜レスリング大会</li>
-              <li><svg><use href="#i-ball"/></svg>全国高等学校男子・女子ソフトボール選抜大会</li>
-              <li><svg><use href="#i-soccer"/></svg>高校女子サッカー大会</li>
-            </ul>
+      <!-- 01 トップ（応援メッセージ） -->
+      <section class="room room--hero" id="top" data-name="トップ" aria-labelledby="hero-title">
+        <div class="room__box">
+          <figure class="hero__photo room__bg">
+            <!-- 仮の画像です。本番の写真に差し替えてください -->
+            <img src="images/hero.jpg" alt="夕日の差すグラウンドで、空を見上げる部活ジャージ姿の高校生" width="464" height="650" fetchpriority="high">
+          </figure>
+          <div class="hero__copy">
+            <h1 id="hero-title" class="hero__title">
+              <span class="hero__line">努力は量じゃない、</span>
+              <span class="hero__line">“<em>やり方</em>”だ。</span>
+            </h1>
+            <p class="hand hero__note"><span class="write">引退、おつかれさま。<br>次は、受験だ。</span></p>
           </div>
-          <div class="season season--summer">
-            <p class="season__tag">夏</p>
-            <ul class="season__list">
-              <li><svg><use href="#i-ball"/></svg>全国高等学校野球選手権大会（阪神甲子園球場 壁面広告）</li>
-              <li><svg><use href="#i-run"/></svg>全国高等学校総合体育大会（インターハイ）</li>
-              <li><svg><use href="#i-dance"/></svg>日本高校ダンス部選手権 DANCE STADIUM（夏・全国大会）</li>
-            </ul>
+          <p class="hero__sub"><span class="ln">部活も、受験も。</span><span class="ln">これまでの頑張りは、</span><span class="ln">正しいやり方で報われる。</span></p>
+          <p class="hint" aria-hidden="true"><span>スクロールで、次の部屋へ</span></p>
+        </div>
+      </section>
+
+      <!-- 02 武田塾からのメッセージ -->
+      <section class="room room--message" id="message" data-name="武田塾からのメッセージ" aria-labelledby="message-title">
+        <div class="room__box">
+          <div class="message__body">
+            <figure class="message__photo room__bg">
+              <img src="images/team.jpg" alt="ユニフォーム姿で肩を組み、笑い合う部活仲間たち" width="862" height="392" loading="lazy">
+            </figure>
+            <p class="pill">武田塾からのメッセージ</p>
+            <h2 id="message-title" class="message__title" data-split>部活をやり切った学生を、<br>武田塾は<em>全力で応援します！</em></h2>
+            <p class="message__text">最後の試合まで、全力で。<br class="sp">そのあとの受験も、全力で支えます。</p>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ===================== 4. 武田塾のアピール（逆転のしくみ） ===================== -->
-    <section class="why" aria-labelledby="why-title">
-      <div class="why__inner">
-        <div class="why__head">
-          <h2 id="why-title" class="why__title">なぜ、武田塾なら<br class="sp">“逆転”できるのか。</h2>
-          <p class="why__lead">答えは、授業をしないこと。<br class="sp">足りないのは授業ではなく<br class="sp">“正しいやり方”だから。</p>
-        </div>
-
-        <div class="cycle">
-          <div class="cycle__ring" aria-hidden="true">
-            <svg class="cycle__svg" viewBox="0 0 200 200">
-              <circle class="cycle__track" cx="100" cy="100" r="78"/>
-              <circle class="cycle__bar" cx="100" cy="100" r="78" pathLength="1"/>
-            </svg>
-            <div class="cycle__center">
-              <p>正しいやり方で、<br>合格は近づく。</p>
+      <!-- 03 武田塾の応援 -->
+      <section class="room room--cheer" id="cheer" data-name="武田塾の応援" aria-labelledby="cheer-title">
+        <div class="room__box">
+          <figure class="cheer__stadium room__bg">
+            <img src="images/stadium.jpg" alt="甲子園球場の外野スタンドを背に笑顔を見せる高校生と、武田塾の看板「やりきったその先へ」" width="1024" height="345" loading="lazy">
+          </figure>
+          <div class="cheer__text">
+            <p class="pill">武田塾の応援</p>
+            <h2 id="cheer-title" class="cheer__title" data-split>部活も、受験も<br class="sp">欲張れ!!</h2>
+            <p class="cheer__lead">どっちかを選ぶ必要なんて、ない。<br>部活を最後までやりきっても、<br class="sp">“やり方”さえ変えれば、<br class="sp">引退してからでも逆転できる。<br>武田塾は、全部に本気なきみの味方です。</p>
+          </div>
+          <div class="rally" aria-label="武田塾が応援している部活の例">
+            <p class="shout" aria-hidden="true"><span>いけー！ ナイス！ まだいける！ ラスト！ がんばれ！&nbsp;</span><span>いけー！ ナイス！ まだいける！ ラスト！ がんばれ！&nbsp;</span></p>
+            <div class="rally__window">
+              <ul class="rally__rail">
+                <li class="rally__card"><img src="images/cheer-1.jpg" alt="野球：バットを構える選手" width="212" height="196" loading="lazy"></li>
+                <li class="rally__card"><img src="images/cheer-2.jpg" alt="バレーボール：スパイクを打つ選手" width="230" height="196" loading="lazy"></li>
+                <li class="rally__card"><img src="images/cheer-3.jpg" alt="ダンス：躍動する選手" width="238" height="196" loading="lazy"></li>
+                <li class="rally__card"><img src="images/cheer-4.jpg" alt="ハンドボール：シュートを狙う選手" width="226" height="196" loading="lazy"></li>
+                <li class="rally__card"><img src="images/cheer-5.jpg" alt="サッカー：ボールを運ぶ選手" width="206" height="196" loading="lazy"></li>
+              </ul>
             </div>
-            <div class="node node--1"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M6 3h9l3 3v6M6 3v18h7M9 8h6M9 11.5h5M9 15h3M15 20l5.5-5.5-1.5-1.5L13.5 18.5V20z"/></svg><span>① 診断・逆算</span></div>
-            <div class="node node--2"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M12 6.5C10 5 7 4.5 3.5 5v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5V20"/></svg><span>② 実行</span></div>
-            <div class="node node--3"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M8 4.5H6a1 1 0 0 0-1 1V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5.5a1 1 0 0 0-1-1h-2M9 3h6v3H9zM8.5 13.5l2.5 2.5 4.5-5"/></svg><span>③ 確認テスト</span></div>
-            <div class="node node--4"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 20h16M6 20v-4M10 20v-7M14 20v-9M18 20V8M5 12l5-4 3 2 6-6M15 4h4v4"/></svg><span>④ 定着→<br>次の1冊</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 04 協賛大会 -->
+      <section class="room room--sponsor" id="sponsor" data-name="協賛大会" aria-labelledby="sponsor-title">
+        <div class="room__box">
+          <div class="sponsor__head">
+            <h2 id="sponsor-title" class="sponsor__title">頑張る高校生を、<br class="sp">応援します。</h2>
+            <p class="hand sponsor__note"><span class="write">全員、応援してる。</span></p>
+            <p class="sponsor__lead">勉強だけではありません。全国の、頑張る場所に。</p>
           </div>
 
-          <ol class="cycle__steps">
-            <li class="cycle__step">
-              <p class="cycle__num">① 診断・逆算</p>
-              <p class="cycle__text">今の学力と志望校から逆算して、やることを<strong>参考書1冊単位</strong>で決めます。</p>
-            </li>
-            <li class="cycle__step">
-              <p class="cycle__num">② 実行</p>
-              <p class="cycle__text">毎日やることが明確だから、迷わない。<strong>1冊を完璧に</strong>するまで進めます。</p>
-            </li>
-            <li class="cycle__step">
-              <p class="cycle__num">③ 確認テスト</p>
-              <p class="cycle__text">本当にできたかを<strong>毎日チェック</strong>。分かったつもりは、ごまかせません。</p>
-            </li>
-            <li class="cycle__step">
-              <p class="cycle__num">④ 定着→次の1冊</p>
-              <p class="cycle__text">完璧になったら、<strong>次の1冊へ</strong>。この繰り返しで、合格に必要な力が積み上がります。</p>
-            </li>
-          </ol>
-        </div>
-      </div>
-    </section>
+          <div class="season-tabs" role="tablist" aria-label="季節">
+            <button type="button" role="tab" id="tab-spring" aria-controls="season-spring" aria-selected="true">春の大会</button>
+            <button type="button" role="tab" id="tab-summer" aria-controls="season-summer" aria-selected="false" tabindex="-1">夏の大会</button>
+          </div>
 
-    <!-- ===================== 4-2. 実績 ===================== -->
-    <section class="result" aria-labelledby="result-title">
-      <div class="result__inner">
-        <h2 id="result-title" class="result__title">E判定から、<br class="sp">逆転する。</h2>
-        <p class="result__lead">引退してから始めても、間に合う。<br>“やり方”を変えた先輩たちの結果です。</p>
-
-        <!-- 数値は仮です。実際の実績に差し替えてください -->
-        <ul class="stats">
-          <li class="stat">
-            <p class="stat__label">偏差値 平均</p>
-            <p class="stat__value is-red"><span class="count" data-to="14.2" data-decimals="1" data-prefix="+">+14.2</span></p>
-          </li>
-          <li class="stat">
-            <p class="stat__label">E判定からの逆転合格</p>
-            <p class="stat__value">多数</p>
-          </li>
-          <li class="stat">
-            <p class="stat__label">合格者</p>
-            <p class="stat__value is-red"><span class="count" data-to="2480">2,480</span><small>名</small></p>
-          </li>
-        </ul>
-
-        <div class="chart">
-          <p class="chart__title">偏差値の推移（平均）</p>
-          <div class="chart__body">
-            <div class="chart__axis" aria-hidden="true">
-              <span>80</span><span>60</span><span>40</span><span>20</span><span>0</span>
+          <div class="season-grid">
+            <div class="season season--spring" id="season-spring" role="tabpanel" aria-labelledby="tab-spring">
+              <p class="season__tag">春</p>
+              <ul class="season__list">
+                <li><svg><use href="#i-ball"/></svg>選抜高等学校野球大会（阪神甲子園球場 壁面広告）</li>
+                <li><svg><use href="#i-dance"/></svg>日本高校ダンス部選手権 DANCE STADIUM（春・新人戦）</li>
+                <li><svg><use href="#i-volley"/></svg>全国私立高等学校男女バレーボール選手権大会（さくらバレー）</li>
+                <li><svg><use href="#i-run"/></svg>全国高等学校ハンドボール選抜大会</li>
+                <li><svg><use href="#i-glove"/></svg>全国高等学校ボクシング選抜大会</li>
+                <li><svg><use href="#i-wrestle"/></svg>風間杯争奪全国高等学校選抜レスリング大会</li>
+                <li><svg><use href="#i-ball"/></svg>全国高等学校男子・女子ソフトボール選抜大会</li>
+                <li><svg><use href="#i-soccer"/></svg>高校女子サッカー大会</li>
+              </ul>
             </div>
-            <div class="chart__plot">
-              <div class="bar bar--before" style="--v:41">
-                <p class="bar__num"><span class="count" data-to="41">41</span></p>
-                <div class="bar__fill"></div>
-                <p class="bar__label">引退後に入塾</p>
-              </div>
-              <svg class="chart__arrow" viewBox="0 0 120 60" aria-hidden="true">
-                <defs><linearGradient id="arrow-grad" x1="0" x2="1"><stop offset="0" stop-color="#C8102E" stop-opacity="0"/><stop offset="1" stop-color="#C8102E"/></linearGradient></defs>
-                <path class="chart__arrow-line" d="M4 54 C 50 50, 80 34, 108 10" pathLength="1"/>
-                <path class="chart__arrow-head" d="M96 8 L112 6 L106 21"/>
+            <div class="season season--summer" id="season-summer" role="tabpanel" aria-labelledby="tab-summer">
+              <p class="season__tag">夏</p>
+              <ul class="season__list">
+                <li><svg><use href="#i-ball"/></svg>全国高等学校野球選手権大会（阪神甲子園球場 壁面広告）</li>
+                <li><svg><use href="#i-run"/></svg>全国高等学校総合体育大会（インターハイ）</li>
+                <li><svg><use href="#i-dance"/></svg>日本高校ダンス部選手権 DANCE STADIUM（夏・全国大会）</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 逆転のしくみ -->
+      <section class="room room--method" id="method" data-name="逆転のしくみ" aria-labelledby="method-title">
+        <div class="room__box">
+          <div class="method__head">
+            <h2 id="method-title" class="method__title">なぜ、武田塾なら<br>“逆転”できるのか。</h2>
+            <p class="method__lead">答えは、授業をしないこと。<br class="sp">足りないのは授業ではなく<br class="sp">“正しいやり方”だから。</p>
+          </div>
+
+          <div class="cycle">
+            <div class="cycle__ring">
+              <svg class="cycle__svg" viewBox="0 0 200 200" aria-hidden="true">
+                <circle class="cycle__track" cx="100" cy="100" r="78"/>
+                <circle class="cycle__bar" cx="100" cy="100" r="78" pathLength="1"/>
               </svg>
-              <div class="bar bar--after" style="--v:63">
-                <p class="bar__num"><span class="count" data-to="63">63</span></p>
-                <div class="bar__fill"></div>
-                <p class="bar__label">受験本番</p>
+              <div class="cycle__center" aria-hidden="true"><p>正しいやり方で、<br>合格は近づく。</p></div>
+              <button type="button" class="node node--1" data-step="0" aria-controls="step-0"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M6 3h9l3 3v6M6 3v18h7M9 8h6M9 11.5h5M9 15h3M15 20l5.5-5.5-1.5-1.5L13.5 18.5V20z"/></svg><span>① 診断・逆算</span></button>
+              <button type="button" class="node node--2" data-step="1" aria-controls="step-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M12 6.5C10 5 7 4.5 3.5 5v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5V20"/></svg><span>② 実行</span></button>
+              <button type="button" class="node node--3" data-step="2" aria-controls="step-2"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M8 4.5H6a1 1 0 0 0-1 1V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5.5a1 1 0 0 0-1-1h-2M9 3h6v3H9zM8.5 13.5l2.5 2.5 4.5-5"/></svg><span>③ 確認テスト</span></button>
+              <button type="button" class="node node--4" data-step="3" aria-controls="step-3"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 20h16M6 20v-4M10 20v-7M14 20v-9M18 20V8M5 12l5-4 3 2 6-6M15 4h4v4"/></svg><span>④ 定着→<br>次の1冊</span></button>
+            </div>
+
+            <ol class="cycle__steps">
+              <li class="cycle__step" id="step-0">
+                <p class="cycle__num">① 診断・逆算</p>
+                <p class="cycle__text">今の学力と志望校から逆算して、やることを<strong>参考書1冊単位</strong>で決めます。</p>
+              </li>
+              <li class="cycle__step" id="step-1">
+                <p class="cycle__num">② 実行</p>
+                <p class="cycle__text">毎日やることが明確だから、迷わない。<strong>1冊を完璧に</strong>するまで進めます。</p>
+              </li>
+              <li class="cycle__step" id="step-2">
+                <p class="cycle__num">③ 確認テスト</p>
+                <p class="cycle__text">本当にできたかを<strong>毎日チェック</strong>。分かったつもりは、ごまかせません。</p>
+              </li>
+              <li class="cycle__step" id="step-3">
+                <p class="cycle__num">④ 定着→次の1冊</p>
+                <p class="cycle__text">完璧になったら、<strong>次の1冊へ</strong>。この繰り返しで、合格に必要な力が積み上がります。</p>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- 06 実績 -->
+      <section class="room room--results" id="results" data-name="実績" aria-labelledby="results-title">
+        <div class="room__box">
+          <div class="results__head">
+            <h2 id="results-title" class="results__title">E判定から、<br>逆転する。</h2>
+            <p class="results__lead">引退してから始めても、間に合う。<br>“やり方”を変えた先輩たちの結果です。</p>
+
+            <!-- 数値は仮です。実際の実績に差し替えてください -->
+            <ul class="stats">
+              <li class="stat">
+                <p class="stat__label">偏差値 平均</p>
+                <p class="stat__value is-red"><span class="count" data-to="14.2" data-decimals="1" data-prefix="+">+14.2</span></p>
+              </li>
+              <li class="stat">
+                <p class="stat__label">E判定からの逆転合格</p>
+                <p class="stat__value">多数</p>
+              </li>
+              <li class="stat">
+                <p class="stat__label">合格者</p>
+                <p class="stat__value is-red"><span class="count" data-to="2480">2,480</span><small>名</small></p>
+              </li>
+            </ul>
+          </div>
+
+          <div class="chart">
+            <p class="chart__title">偏差値の推移（平均）</p>
+            <div class="chart__body">
+              <div class="chart__axis" aria-hidden="true"><span>80</span><span>60</span><span>40</span><span>20</span><span>0</span></div>
+              <div class="chart__plot">
+                <div class="bar bar--before" style="--v:41">
+                  <p class="bar__num"><span class="count" data-to="41">41</span></p>
+                  <div class="bar__fill"></div>
+                  <p class="bar__label">引退後に入塾</p>
+                </div>
+                <svg class="chart__arrow" viewBox="0 0 120 60" aria-hidden="true">
+                  <defs><linearGradient id="arrow-grad" x1="0" x2="1"><stop offset="0" stop-color="#C8102E" stop-opacity="0"/><stop offset="1" stop-color="#C8102E"/></linearGradient></defs>
+                  <path class="chart__arrow-line" d="M4 54 C 50 50, 80 34, 108 10" pathLength="1"/>
+                  <path class="chart__arrow-head" d="M96 8 L112 6 L106 21"/>
+                </svg>
+                <div class="bar bar--after" style="--v:63">
+                  <p class="bar__num"><span class="count" data-to="63">63</span></p>
+                  <div class="bar__fill"></div>
+                  <p class="bar__label">受験本番</p>
+                </div>
               </div>
             </div>
+            <p class="hand chart__note"><span class="write">引退してからでも、<br>ここまで伸びる。</span></p>
+            <ul class="chips"><li>国公立</li><li>早慶上理</li><li>MARCH</li><li>関関同立</li><li>その他 多数</li></ul>
+            <p class="results__note">※数値・実績はイメージです</p>
           </div>
-          <p class="hand chart__note"><span class="write">引退してからでも、<br>ここまで伸びる。</span></p>
-
-          <ul class="chips">
-            <li>国公立</li><li>早慶上理</li><li>MARCH</li><li>関関同立</li><li>その他 多数</li>
-          </ul>
-          <p class="result__note">※数値・実績はイメージです</p>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ===================== 5. 診断コンテンツ ===================== -->
-    <section class="diag" id="diagnosis" aria-labelledby="diag-title">
-      <div class="diag__inner">
-        <div class="diag__head">
-          <p class="pill">無料 やり方診断</p>
-          <h2 id="diag-title" class="diag__title">3分で、<br>勉強の“やり方”<br>を診断する。</h2>
-          <p class="diag__lead">まずは、自分のやり方を<br>確かめてください。</p>
-          <figure class="diag__books"><img src="images/books.jpg" alt="机に置かれた参考書。背表紙に「やれば、きっと変わる。」" width="420" height="220" loading="lazy"></figure>
-        </div>
-
-        <div class="quiz" data-quiz>
-          <div class="quiz__top">
-            <p class="quiz__count" aria-live="polite">Q<span data-q-now>1</span> / <span data-q-total>5</span></p>
-            <div class="quiz__bar"><span data-q-bar></span></div>
+      <!-- 07 やり方診断 -->
+      <section class="room room--diagnosis" id="diagnosis" data-name="やり方診断" aria-labelledby="diag-title">
+        <div class="room__box">
+          <div class="diag__head">
+            <p class="pill">無料 やり方診断</p>
+            <h2 id="diag-title" class="diag__title">3分で、<br class="pc">勉強の“やり方”<br>を診断する。</h2>
+            <p class="diag__lead">まずは、自分のやり方を確かめてください。</p>
+            <figure class="diag__books"><img src="images/books.jpg" alt="机に置かれた参考書。背表紙に「やれば、きっと変わる。」" width="420" height="220" loading="lazy"></figure>
           </div>
-          <div class="quiz__stage" data-q-stage>
-            <!-- 質問はJavaScriptで差し込みます（読み込めない場合は下の案内を表示） -->
-            <noscript><p class="quiz__fallback">診断はJavaScriptを有効にするとご利用いただけます。無料受験相談でも、やり方の診断を行っています。</p></noscript>
+
+          <div class="quiz" data-quiz>
+            <div class="quiz__top">
+              <p class="quiz__count" aria-live="polite">Q<span data-q-now>1</span> / <span data-q-total>5</span></p>
+              <div class="quiz__bar"><span data-q-bar></span></div>
+            </div>
+            <div class="quiz__stage" data-q-stage>
+              <noscript><p class="quiz__fallback">診断はJavaScriptを有効にするとご利用いただけます。無料受験相談でも、やり方の診断を行っています。</p></noscript>
+            </div>
+            <p class="quiz__foot">登録不要・メールアドレス不要。結果はその場で表示。</p>
           </div>
-          <p class="quiz__foot">登録不要・メールアドレス不要。結果はその場で表示。</p>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ===================== 6. CTA ===================== -->
-    <section class="cta" id="cta" aria-labelledby="cta-title">
-      <figure class="cta__photo">
-        <img src="images/goal.jpg" alt="夕暮れの校門の前で、部活の荷物を背負い遠くを見つめる高校生" width="1024" height="430" loading="lazy">
-      </figure>
-      <div class="cta__inner">
-        <p class="pill">無料 受験相談・体験</p>
-        <h2 id="cta-title" class="cta__title">次の試合は、<br class="sp">受験だ。</h2>
-        <p class="cta__text">授業はしない。参考書を1冊ずつ完璧に。<br>だから、引退してからでも間に合う。<br>無料の受験相談で、志望校までの<br class="sp">“やり方”をひとつ持ち帰れます。<br>入塾は、それから。</p>
-        <!-- 申し込みフォームのURLに差し替えてください -->
-        <a class="btn-cta" href="#">無料で体験する<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-    </section>
+      <!-- 08 無料相談（CTA） -->
+      <section class="room room--consult" id="consult" data-name="無料相談" aria-labelledby="consult-title">
+        <div class="room__box">
+          <figure class="consult__photo room__bg">
+            <img src="images/goal.jpg" alt="夕暮れの校門の前で、部活の荷物を背負い遠くを見つめる高校生" width="1024" height="430" loading="lazy">
+          </figure>
+          <div class="consult__body">
+            <p class="pill">無料 受験相談・体験</p>
+            <h2 id="consult-title" class="consult__title" data-split>次の試合は、<br class="sp">受験だ。</h2>
+            <p class="consult__text">授業はしない。参考書を1冊ずつ完璧に。<br>だから、引退してからでも間に合う。<br>無料の受験相談で、志望校までの<br class="sp">“やり方”をひとつ持ち帰れます。<br>入塾は、それから。</p>
+            <!-- 申し込みフォームのURLに差し替えてください -->
+            <a class="btn-cta" href="#">無料で体験する<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </div>
+          <footer class="consult__foot">
+            <p><span class="consult__logo">武田塾</span>頑張り方を、教える人でありたい。</p>
+            <p><small>© 武田塾</small></p>
+          </footer>
+        </div>
+      </section>
 
+    </div>
+    </div>
   </main>
 
-  <footer class="footer">
-    <p class="footer__tagline"><span class="footer__logo">武田塾</span>頑張り方を、教える人でありたい。</p>
-    <p class="footer__copy"><small>© 武田塾</small></p>
-  </footer>
+  <!-- 離れた部屋へ移動するときの幕 -->
+  <div class="curtain" aria-hidden="true"><p class="curtain__no"></p><p class="curtain__name"></p></div>
 
-  <!-- スマホ用：画面下に固定される申し込みボタン -->
-  <div class="dock">
-    <a class="dock__sub" href="#diagnosis">やり方診断</a>
-    <a class="dock__main" href="#cta">無料で受験相談</a>
+  <!-- PC用：前後の部屋へ移動するボタン -->
+  <div class="walker" aria-label="部屋の移動">
+    <p class="walker__here" aria-live="polite"><span data-here-no>01</span><span class="walker__total"> / 08</span><span class="walker__name" data-here-name>トップ</span></p>
+    <button type="button" class="walker__btn" data-walk="-1" aria-label="前の部屋へ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="walker__btn" data-walk="1" aria-label="次の部屋へ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
 
   <script src="js/vendor/gsap.min.js" defer></script>
   <script src="js/vendor/ScrollTrigger.min.js" defer></script>
-  <script src="js/vendor/lenis.min.js" defer></script>
   <script src="js/quiz.js" defer></script>
   <script src="js/main.js" defer></script>
 </body>
